@@ -30,7 +30,44 @@ body {
 
 .main-container {
   position: relative;
+  display: flex;
+  flex-direction: row;
   width: 100%;
+  min-width: 1024px;
+  height: calc(100vh - 140px);
+  min-height: calc(768px - 140px);
+}
+
+.container {
+  width: 25%;
+  min-width: 256px;
+}
+
+.map-block {
+  width: 50%;
+  min-width: 512px;
+  min-height: 100%;
+  background-color: rgba(139, 0, 0, .5);
+}
+
+.table-block {
+  height: 60%;
+  background-color: rgba(0, 139, 0, .5);
+}
+
+.chart-block {
+  height: 40%;
+  background-color: rgba(0, 139, 139, .5);
+}
+
+.global-cases-block {
+  height: 12%;
+  background-color: rgba(139, 139, 0, .5);
+}
+
+.list-block {
+  height: 88%;
+  background-color: rgba(0, 0, 139, .5);
 }
 
 a {

@@ -1,0 +1,50 @@
+const settings = {
+  mainContainerCSSClass: 'main-container',
+  containerCSSClass: 'container',
+  globalCasesCSSClass: 'global-cases-block',
+  listBlockCSSClass: 'list-block',
+  mapBlockCSSClass: 'map-block',
+  tableBlockCSSClass: 'table-block',
+  chartBlockCSSClass: 'chart-block',
+};
+
+export default class CovidDashboard {
+  constructor() {
+    this.settings = settings;
+    // first column
+    this.$globalCases = document.createElement('div');
+    this.$globalCases.classList.add(this.settings.globalCasesCSSClass);
+    this.$list = document.createElement('div');
+    this.$list.classList.add(this.settings.listBlockCSSClass);
+    this.$firstContainer = document.createElement('div');
+    this.$firstContainer.classList.add(this.settings.containerCSSClass);
+    this.$firstContainer.appendChild(this.$globalCases);
+    this.$firstContainer.appendChild(this.$list);
+
+    // second column
+    this.$mapBlock = document.createElement('div');
+    this.$mapBlock.classList.add(this.settings.mapBlockCSSClass);
+
+    // third column
+    this.$tableBlock = document.createElement('div');
+    this.$tableBlock.classList.add(this.settings.tableBlockCSSClass);
+    this.$chartBlock = document.createElement('div');
+    this.$chartBlock.classList.add(this.settings.chartBlockCSSClass);
+    this.$thirdContainer = document.createElement('div');
+    this.$thirdContainer.classList.add(this.settings.containerCSSClass);
+    this.$thirdContainer.appendChild(this.$tableBlock);
+    this.$thirdContainer.appendChild(this.$chartBlock);
+
+    this.$mainContainer = document.createElement('div');
+    this.$mainContainer.classList.add(this.settings.mainContainerCSSClass);
+    this.$mainContainer.appendChild(this.$firstContainer);
+    this.$mainContainer.appendChild(this.$mapBlock);
+    this.$mainContainer.appendChild(this.$thirdContainer);
+  }
+
+  get htmlFragment() {
+    const $fragment = document.createDocumentFragment();
+    $fragment.appendChild(this.$mainContainer);
+    return $fragment;
+  }
+}
