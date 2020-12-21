@@ -65,5 +65,8 @@
     "url": "https://github.com/aplatkouski/covid-dashboard/issues"
   },
   "homepage": "https://github.com/aplatkouski/covid-dashboard#README.md",
-  "dependencies": {}
+  "dependencies": {
+    "leaflet": "^1.7.1",
+    "mapbox-gl": "^2.0.0"
+  }
 }
