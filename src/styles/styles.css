@@ -1,0 +1,152 @@
+:root {
+  --color-light-xl: #fff;
+  --color-light-l: #f6f6f6;
+  --color-light-s: #fafafa;
+  --color-dark-s: #cdcdcd;
+  --color-dark-m: #b2b2b2;
+  --color-dark-l: #545454;
+  --color-dark-xl: #4c4c4c;
+  --color-dark-2xl: #444;
+  --color-dark-3xl: #292929;
+  --color-primary: #f1cdb3;
+  --color-primary-light: #fddcc4;
+  --start-screen-gradient-background: radial-gradient(#5b483a, #262425);
+  --footer-gradient-background: radial-gradient(#513d2f, #1a1a1c);
+  --paragraph-l: 400 2rem/160% "Arial", sans-serif;
+  --paragraph-s: 400 1.5rem/150% "Arial", sans-serif;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+h2 {
+  padding-top: 1rem;
+  font: var(--paragraph-l);
+  color: var(--color-dark-l);
+  text-align: center;
+  letter-spacing: .06em;
+  user-select: none;
+  background-color: var(--color-light-l);
+}
+
+.main-container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-width: 1024px;
+  height: calc(100vh - 140px);
+  min-height: calc(768px - 140px);
+}
+
+.container {
+  width: 25%;
+  min-width: 256px;
+}
+
+.map-block {
+  width: 50%;
+  min-width: 512px;
+  min-height: 100%;
+  background-color: rgba(139, 0, 0, .5);
+}
+
+.table-block {
+  height: 60%;
+  background-color: rgba(0, 139, 0, .5);
+}
+
+.chart-block {
+  height: 40%;
+  background-color: rgba(0, 139, 139, .5);
+}
+
+.global-cases-block {
+  height: 12%;
+  background-color: rgba(139, 139, 0, .5);
+}
+
+.list-block {
+  height: 88%;
+  background-color: rgba(0, 0, 139, .5);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.hidden {
+  display: none;
+}
+
+.maximize-icon {
+  transition: .3s;
+  transform: rotate(0deg);
+}
+
+.rotate-icon {
+  transform: rotate(180deg);
+}
+
+/* Footer */
+.footer-background {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 1024px;
+  background: url("../images/noise-transparent-2x.png"), var(--footer-gradient-background), #211f20;
+}
+
+footer {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 2rem);
+  max-width: 80rem;
+  min-height: calc(140px - 2rem);
+  padding: 1rem;
+  margin: 0 auto;
+  font: var(--paragraph-s);
+  color: var(--color-primary);
+  letter-spacing: .06em;
+  grid-column-gap: 12rem;
+  grid-row-gap: 1rem;
+}
+
+.contributors-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.rs-school-logo {
+  height: 2rem;
+  -webkit-filter: invert(1);
+  filter: invert(1);
+}
+
+.github-icon {
+  width: 1.5rem;
+}
+
+@media screen and (max-width: 26rem) {
+  footer {
+    width: calc(100% - 3rem);
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+    font-size: 1.5rem;
+  }
+}
