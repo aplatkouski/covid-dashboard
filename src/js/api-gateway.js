@@ -6,6 +6,8 @@ const settings = {
   flagAPI: 'https://www.countryflags.io',
   flagIconSize: 24,
   flagStyle: 'flat',
+  comparativeRatio: 100000,
+  precision: 100,
 };
 
 export default class ApiGateway {
@@ -17,7 +19,20 @@ export default class ApiGateway {
     this[Symbol.for('date')] = JSON.parse(localStorage.getItem('date'))
       ? new Date(JSON.parse(localStorage.getItem('date')))
       : undefined;
-    this[Symbol.for('global')] = JSON.parse(localStorage.getItem('global')) || {};
+    this[Symbol.for('global')] = JSON.parse(localStorage.getItem('global'))
+      || {};
+
+    ['lastDay', 'lastDayComparative', 'total', 'totalComparative'].forEach(
+      (group) => {
+        if (!{}.hasOwnProperty.call(this[Symbol.for('global')], group)) {
+          this[Symbol.for('global')][group] = {
+            confirmed: 0,
+            deaths: 0,
+            recovered: 0,
+          };
+        }
+      },
+    );
   }
 
   get isMoreThanHourSinceLastFetch() {
@@ -36,10 +51,10 @@ export default class ApiGateway {
       .then(() => this.fetchCountriesData())
       .then(() => this.fetchAndAssignFlags())
       .then(() => this.reloadDateCovidData())
-      .then(() => this.reloadGlobalCovidData())
       .then(() => this.reloadCovidData())
       .then(() => this.reloadCountriesData())
-      .then(() => this.calculateComparativeTo100ThousandPeople())
+      .then(() => this.assignComparativeDataToAllCountries())
+      .then(() => this.reloadGlobalCovidData())
       .then(() => this.cacheData())
       .catch(() => setTimeout(this.fetchAndReloadAllData.bind(this),
         AUTO_RELOAD_TIMEOUT_IN_MILLISECONDS));
@@ -196,54 +211,49 @@ export default class ApiGateway {
   }
 
   reloadGlobalCovidData() {
-    const {
-      NewConfirmed: newConfirmed,
-      NewDeaths: newDeaths,
-      NewRecovered: newRecovered,
-      TotalConfirmed: totalConfirmed,
-      TotalDeaths: totalDeaths,
-      TotalRecovered: totalRecovered,
-    } = this[Symbol.for(this.settings.covidStorageKey)].Global;
-    Object.assign(this[Symbol.for('global')], {
-      lastDay: {
-        confirmed: +newConfirmed,
-        deaths: +newDeaths,
-        recovered: +newRecovered,
-      },
-      total: {
-        confirmed: +totalConfirmed,
-        deaths: +totalDeaths,
-        recovered: +totalRecovered,
-      },
+    ['lastDay', 'total'].forEach((group) => {
+      ['confirmed', 'deaths', 'recovered'].forEach((subGroup) => {
+        this[Symbol.for('global')][group][subGroup] = Object.values(
+          this[Symbol.for('countries')],
+        )
+          .map((country) => country[group][subGroup])
+          .reduce((acc, cur) => acc + cur);
+      });
     });
-    return Promise.resolve(this[Symbol.for('global')]);
+
+    this[Symbol.for('global')].population = Object.values(this[Symbol.for('countries')])
+      .map((country) => country.population)
+      .reduce((acc, cur) => acc + cur);
+
+    return this.assignComparativeData(this[Symbol.for('global')]);
   }
 
-  calculateComparativeTo100ThousandPeople() {
-    const precision = 100;
+  async assignComparativeData(country) {
+    const getComparative = (value) => Math.round(
+      (value / (country.population / this.settings.comparativeRatio))
+      * this.settings.precision,
+    ) / this.settings.precision;
 
-    const computeComparative = (value, ratio) => Math.round(
-      (value / ratio) * precision,
-    ) / precision;
+    Object.assign(country, {
+      totalComparative: {
+        confirmed: getComparative(country.total.confirmed),
+        deaths: getComparative(country.total.deaths),
+        recovered: getComparative(country.total.recovered),
+      },
+      lastDayComparative: {
+        confirmed: getComparative(country.lastDay.confirmed),
+        deaths: getComparative(country.lastDay.deaths),
+        recovered: getComparative(country.lastDay.recovered),
+      },
+    });
+    return Promise.resolve(country);
+  }
 
+  assignComparativeDataToAllCountries() {
     return Promise.all(
       Object.keys(this[Symbol.for('countries')]).map(async (key) => {
         const country = this[Symbol.for('countries')][key];
-        const ratio = country.population / 100000;
-        Object.assign(country,
-          {
-            totalComparative: {
-              confirmed: computeComparative(country.total.confirmed, ratio),
-              deaths: computeComparative(country.total.deaths, ratio),
-              recovered: computeComparative(country.total.recovered, ratio),
-            },
-            lastDayComparative: {
-              confirmed: computeComparative(country.lastDay.confirmed, ratio),
-              deaths: computeComparative(country.lastDay.deaths, ratio),
-              recovered: computeComparative(country.lastDay.recovered, ratio),
-            },
-          });
-        return Promise.resolve({ key: country });
+        return this.assignComparativeData(country);
       }),
     );
   }
