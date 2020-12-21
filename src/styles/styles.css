@@ -142,6 +142,12 @@ footer {
   width: 1.5rem;
 }
 
+.flag-icon {
+  width: 2rem;
+  margin: .1rem;
+  box-shadow: .1rem .1rem .25rem rgba(0, 0, 0, .4);
+}
+
 @media screen and (max-width: 26rem) {
   footer {
     width: calc(100% - 3rem);

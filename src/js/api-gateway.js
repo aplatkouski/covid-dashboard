@@ -8,6 +8,7 @@ const settings = {
   flagStyle: 'flat',
   comparativeRatio: 100000,
   precision: 100,
+  flagIconCSSClass: 'flag-icon',
 };
 
 export default class ApiGateway {
@@ -116,6 +117,7 @@ export default class ApiGateway {
       Object.keys(this[Symbol.for('countries')]).map(async (key) => {
         const country = this[Symbol.for('countries')][key];
         const $flagImage = document.createElement('img');
+        $flagImage.classList.add(this.settings.flagIconCSSClass);
         $flagImage.alt = `${key} flag`;
         Object.assign(country, { flagImage: $flagImage });
         return fetch(
