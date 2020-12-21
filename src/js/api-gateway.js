@@ -1,5 +1,5 @@
 const settings = {
-  countriesAPI: 'https://restcountries.eu/rest/v2/all?fields=alpha2Code;population;latlng;flag',
+  countriesAPI: 'https://restcountries.eu/rest/v2/all?fields=name;alpha2Code;population;latlng;flag',
   countriesStorageKey: 'cached-country-data',
   covidAPI: 'https://api.covid19api.com/summary',
   covidStorageKey: 'cached-covid-data',
@@ -114,6 +114,7 @@ export default class ApiGateway {
           const key = country.alpha2Code.toUpperCase();
           if (this[Symbol.for('countries')][key]) {
             const {
+              name,
               alpha2Code,
               flag,
               latlng: [
@@ -125,6 +126,7 @@ export default class ApiGateway {
             Object.assign(
               this[Symbol.for('countries')][key],
               {
+                name,
                 alpha2Code: alpha2Code.toUpperCase(),
                 flagUrl: flag,
                 latitude: +latitude,
