@@ -11,7 +11,9 @@ const settings = {
 export default class ApiGateway {
   constructor() {
     this.settings = settings;
-    this[Symbol.for('countries')] = JSON.parse(localStorage.getItem('countries')) || {};
+    this[Symbol.for('countries')] = JSON.parse(
+      localStorage.getItem('countries'),
+    ) || {};
     this[Symbol.for('date')] = JSON.parse(localStorage.getItem('date'))
       ? new Date(JSON.parse(localStorage.getItem('date')))
       : undefined;
@@ -81,7 +83,9 @@ export default class ApiGateway {
       .then((response) => response.json())
       .then((data) => {
         this[Symbol.for(this.settings.countriesStorageKey)] = data;
-        return Promise.resolve(this[Symbol.for(this.settings.countriesStorageKey)]);
+        return Promise.resolve(
+          this[Symbol.for(this.settings.countriesStorageKey)],
+        );
       });
   }
 
@@ -245,7 +249,8 @@ export default class ApiGateway {
   }
 
   cacheData() {
-    localStorage.setItem('countries', JSON.stringify(this[Symbol.for('countries')]));
+    localStorage.setItem('countries',
+      JSON.stringify(this[Symbol.for('countries')]));
     localStorage.setItem('date', JSON.stringify(this[Symbol.for('date')]));
     localStorage.setItem('global', JSON.stringify(this[Symbol.for('global')]));
   }
