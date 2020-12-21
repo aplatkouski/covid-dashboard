@@ -56,6 +56,13 @@ export default class MapBlock {
     });
   }
 
+  selectCountry(alpha2Code) {
+    this.map.setView(
+      [this.casesByCountry[alpha2Code].latitude, this.casesByCountry[alpha2Code].longitude],
+      5,
+    );
+  }
+
   addCircle(country) {
     const radius = country[this.options[0]][this.options[1]] / 10;
     const message = this.settings[this.options[0]][this.options[1]];

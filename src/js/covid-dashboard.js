@@ -48,6 +48,14 @@ export default class CovidDashboard {
     this.$mainContainer.appendChild(this.$mapBlock);
     this.$mainContainer.appendChild(this.$thirdContainer);
 
+    this.selectCountry = (alpha2Code) => {
+      this.blocks.forEach((block) => {
+        if (typeof block.selectCountry === 'function') {
+          block.selectCountry(alpha2Code);
+        }
+      });
+    };
+
     this.apiGateway = new ApiGateway();
     this.apiGateway.fetchAndReloadAllData().then(() => {
       const globalCasesBlock = new GlobalCasesBlock(this.$globalCases, this.apiGateway.globalCases);
