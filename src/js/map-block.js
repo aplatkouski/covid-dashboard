@@ -29,11 +29,23 @@ const settings = {
 };
 
 export default class MapBlock {
-  constructor($mainContainer, dataSource, options = ['total', 'confirmed']) {
+  constructor({
+    htmlContainer: $mainContainer,
+    casesByCountry,
+    options = {
+      group: 'total',
+      subGroup: 'confirmed',
+    },
+    selectCountryCallback,
+  }) {
     this.settings = settings;
     this.options = options;
     this.$mainContainer = $mainContainer;
-    this.casesByCountry = dataSource;
+    this.casesByCountry = casesByCountry;
+    this.selectCountryCallback = typeof selectCountryCallback === 'function'
+      ? selectCountryCallback
+      : () => {};
+
     this.map = L.map('covid-map').setView(
       [
         this.casesByCountry[this.settings.defaultCountryAlpha2Code].latitude,
@@ -64,8 +76,8 @@ export default class MapBlock {
   }
 
   addCircle(country) {
-    const radius = country[this.options[0]][this.options[1]] / 10;
-    const message = this.settings[this.options[0]][this.options[1]];
+    const radius = country[this.options.group][this.options.subGroup] / 10;
+    const message = this.settings[this.options.group][this.options.subGroup];
     const {
       name,
       latitude,

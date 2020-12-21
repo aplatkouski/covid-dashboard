@@ -58,8 +58,17 @@ export default class CovidDashboard {
 
     this.apiGateway = new ApiGateway();
     this.apiGateway.fetchAndReloadAllData().then(() => {
-      const globalCasesBlock = new GlobalCasesBlock(this.$globalCases, this.apiGateway.globalCases);
-      const mapBlock = new MapBlock(this.$mapBlock, this.apiGateway.casesByCountry);
+      const globalCasesBlock = new GlobalCasesBlock({
+        htmlContainer: this.$globalCases,
+        casesByCountry: this.apiGateway.casesByCountry,
+        globalCases: this.apiGateway.globalCases,
+      });
+      const mapBlock = new MapBlock({
+        htmlContainer: this.$mapBlock,
+        casesByCountry: this.apiGateway.casesByCountry,
+        globalCases: this.apiGateway.globalCases,
+        selectCountryCallback: this.selectCountry,
+      });
       this.blocks.push(globalCasesBlock, mapBlock);
     });
 
