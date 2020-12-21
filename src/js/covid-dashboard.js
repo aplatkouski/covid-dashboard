@@ -1,3 +1,6 @@
+import ApiGateway from './api-gateway';
+import GlobalCasesBlock from './global-cases-block';
+
 const settings = {
   mainContainerCSSClass: 'main-container',
   containerCSSClass: 'container',
@@ -11,6 +14,8 @@ const settings = {
 export default class CovidDashboard {
   constructor() {
     this.settings = settings;
+    this.blocks = [];
+
     // first column
     this.$globalCases = document.createElement('div');
     this.$globalCases.classList.add(this.settings.globalCasesCSSClass);
@@ -40,6 +45,21 @@ export default class CovidDashboard {
     this.$mainContainer.appendChild(this.$firstContainer);
     this.$mainContainer.appendChild(this.$mapBlock);
     this.$mainContainer.appendChild(this.$thirdContainer);
+
+    this.apiGateway = new ApiGateway();
+    this.apiGateway.fetchAndReloadAllData().then(() => {
+      const globalCasesBlock = new GlobalCasesBlock(this.$globalCases, this.apiGateway.globalCases);
+      this.blocks.push(globalCasesBlock);
+    });
+
+    // auto-sync
+    const ONE_HOUR_IN_MILLISECONDS = 36e5;
+    const reloadDataAndRenderBlocks = () => {
+      this.apiGateway.fetchAndReloadAllData().then(() => {
+        this.blocks.forEach((block) => block.render());
+      });
+    };
+    setInterval(reloadDataAndRenderBlocks, ONE_HOUR_IN_MILLISECONDS);
   }
 
   get htmlFragment() {
