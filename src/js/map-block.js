@@ -6,6 +6,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpeHlyOWZwMThtYjJxb
 const settings = {
   mapbox: 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpeHlyOWZwMThtYjJxbXd2cHRwajIyNyJ9.jbgJSxSYgjaS_moNI_RLgw',
   defaultCountryAlpha2Code: 'BY',
+  flagIconCSSClass: 'flag-icon',
   lastDay: {
     confirmed: 'количество случаев заболевания за последний день в абсолютных величинах',
     deaths: 'количество летальных исходов за последний день в абсолютных величинах',
@@ -83,6 +84,7 @@ export default class MapBlock {
       name,
       latitude,
       longitude,
+      flagUrl,
     } = country;
 
     const circle = L.circle(
@@ -95,7 +97,10 @@ export default class MapBlock {
       },
     ).addTo(this.map);
     const popup = L.popup();
-    popup.setContent(`${name}\n${message}`);
+    popup.setContent(`<h2><img class="${this.settings.flagIconCSSClass}"
+    src="${flagUrl}" alt="${alpha2Code} flag">${name}</h2><br>
+    <p><b>${country[this.options.group][this.options.subGroup]}</b>
+    - ${message}</p>`);
     circle.on('mouseover', (e) => {
       popup.setLatLng(e.latlng).openOn(this.map);
     });

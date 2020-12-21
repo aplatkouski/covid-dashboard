@@ -38,6 +38,12 @@ h2 {
   background-color: var(--color-light-l);
 }
 
+p {
+  font: var(--paragraph-s);
+  font-size: 1rem;
+  color: var(--color-dark-3xl);
+}
+
 .main-container {
   position: relative;
   display: flex;
