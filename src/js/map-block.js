@@ -5,6 +5,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpeHlyOWZwMThtYjJxb
 
 const settings = {
   mapbox: 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpeHlyOWZwMThtYjJxbXd2cHRwajIyNyJ9.jbgJSxSYgjaS_moNI_RLgw',
+  defaultCountryAlpha2Code: 'BY',
   lastDay: {
     confirmed: 'количество случаев заболевания за последний день в абсолютных величинах',
     deaths: 'количество летальных исходов за последний день в абсолютных величинах',
@@ -34,7 +35,9 @@ export default class MapBlock {
     this.$mainContainer = $mainContainer;
     this.casesByCountry = dataSource;
     this.map = L.map('covid-map').setView(
-      [this.casesByCountry.BY.latitude, this.casesByCountry.BY.longitude],
+      [
+        this.casesByCountry[this.settings.defaultCountryAlpha2Code].latitude,
+        this.casesByCountry[this.settings.defaultCountryAlpha2Code].longitude],
       5,
     );
     L.tileLayer(
