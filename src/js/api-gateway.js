@@ -12,7 +12,9 @@ export default class ApiGateway {
   constructor() {
     this.settings = settings;
     this[Symbol.for('countries')] = JSON.parse(localStorage.getItem('countries')) || {};
-    this[Symbol.for('date')] = new Date(JSON.parse(localStorage.getItem('date'))) || undefined;
+    this[Symbol.for('date')] = JSON.parse(localStorage.getItem('date'))
+      ? new Date(JSON.parse(localStorage.getItem('date')))
+      : undefined;
     this[Symbol.for('global')] = JSON.parse(localStorage.getItem('global')) || {};
   }
 
