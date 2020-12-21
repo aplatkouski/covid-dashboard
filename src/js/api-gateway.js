@@ -69,7 +69,7 @@ export default class ApiGateway {
       .then((response) => response.json())
       .then((data) => {
         this[Symbol.for(this.settings.covidStorageKey)] = data;
-        if (data?.Message) {
+        if (data.Message) {
           return Promise.reject(data.Message);
         }
         return Promise.resolve(this[Symbol.for(this.settings.covidStorageKey)]);
