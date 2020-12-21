@@ -7,6 +7,9 @@ const settings = {
   mapbox: 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpeHlyOWZwMThtYjJxbXd2cHRwajIyNyJ9.jbgJSxSYgjaS_moNI_RLgw',
   defaultCountryAlpha2Code: 'BY',
   flagIconCSSClass: 'flag-icon',
+  tileLayerAttribution: 'Map data &copy; <a'
+    + ' href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    + ' contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
   lastDay: {
     confirmed: 'количество случаев заболевания за последний день в абсолютных величинах',
     deaths: 'количество летальных исходов за последний день в абсолютных величинах',
@@ -56,8 +59,9 @@ export default class MapBlock {
     L.tileLayer(
       'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
       {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 18,
+        attribution: this.settings.tileLayerAttribution,
+        maxZoom: 6,
+        minZoom: 3,
         id: 'mapbox/streets-v11',
         tileSize: 512,
         zoomOffset: -1,
@@ -70,7 +74,7 @@ export default class MapBlock {
   }
 
   selectCountry(alpha2Code) {
-    this.map.setView(
+    this.map.flyTo(
       [this.casesByCountry[alpha2Code].latitude, this.casesByCountry[alpha2Code].longitude],
       5,
     );
