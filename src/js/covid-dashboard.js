@@ -1,5 +1,6 @@
 import ApiGateway from './api-gateway';
 import GlobalCasesBlock from './global-cases-block';
+import MapBlock from './map-block';
 
 const settings = {
   mainContainerCSSClass: 'main-container',
@@ -28,6 +29,7 @@ export default class CovidDashboard {
 
     // second column
     this.$mapBlock = document.createElement('div');
+    this.$mapBlock.id = 'covid-map';
     this.$mapBlock.classList.add(this.settings.mapBlockCSSClass);
 
     // third column
@@ -49,7 +51,8 @@ export default class CovidDashboard {
     this.apiGateway = new ApiGateway();
     this.apiGateway.fetchAndReloadAllData().then(() => {
       const globalCasesBlock = new GlobalCasesBlock(this.$globalCases, this.apiGateway.globalCases);
-      this.blocks.push(globalCasesBlock);
+      const mapBlock = new MapBlock(this.$mapBlock, this.apiGateway.casesByCountry);
+      this.blocks.push(globalCasesBlock, mapBlock);
     });
 
     // auto-sync
