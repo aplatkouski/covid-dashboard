@@ -24,6 +24,9 @@ export default class ApiGateway {
   }
 
   fetchAndReloadAllData() {
+    if (!this.isMoreThanHourSinceLastFetch) {
+      return Promise.resolve();
+    }
     const AUTO_RELOAD_TIMEOUT_IN_MILLISECONDS = 10000;
     return this.fetchCovidData()
       .then(() => this.fetchCountriesData())
