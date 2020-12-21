@@ -28,6 +28,16 @@ body {
   min-height: 100vh;
 }
 
+h2 {
+  padding-top: 1rem;
+  font: var(--paragraph-l);
+  color: var(--color-dark-l);
+  text-align: center;
+  letter-spacing: .06em;
+  user-select: none;
+  background-color: var(--color-light-l);
+}
+
 .main-container {
   position: relative;
   display: flex;
