@@ -79,6 +79,7 @@ export default class MapBlock {
     const radius = country[this.options.group][this.options.subGroup] / 10;
     const message = this.settings[this.options.group][this.options.subGroup];
     const {
+      alpha2Code,
       name,
       latitude,
       longitude,
@@ -100,6 +101,10 @@ export default class MapBlock {
     });
     circle.on('mouseout', () => {
       this.map.closePopup();
+    });
+
+    circle.on('click', () => {
+      this.selectCountryCallback(alpha2Code);
     });
   }
 
