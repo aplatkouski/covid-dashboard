@@ -47,18 +47,14 @@ export default class ApiGateway {
     if (!this.isMoreThanHourSinceLastFetch) {
       return Promise.resolve();
     }
-    const AUTO_RELOAD_TIMEOUT_IN_MILLISECONDS = 10000;
     return this.fetchCovidData()
       .then(() => this.fetchCountriesData())
-      .then(() => this.fetchAndAssignFlags())
       .then(() => this.reloadDateCovidData())
       .then(() => this.reloadCovidData())
       .then(() => this.reloadCountriesData())
       .then(() => this.assignComparativeDataToAllCountries())
       .then(() => this.reloadGlobalCovidData())
-      .then(() => this.cacheData())
-      .catch(() => setTimeout(this.fetchAndReloadAllData.bind(this),
-        AUTO_RELOAD_TIMEOUT_IN_MILLISECONDS));
+      .then(() => this.cacheData());
   }
 
   get casesByCountry() {
@@ -103,34 +99,6 @@ export default class ApiGateway {
           this[Symbol.for(this.settings.countriesStorageKey)],
         );
       });
-  }
-
-  fetchAndAssignFlags() {
-    const headers = new Headers();
-    const init = {
-      method: 'GET',
-      headers,
-      mode: 'no-cors',
-      cache: 'default',
-    };
-    return Promise.all(
-      Object.keys(this[Symbol.for('countries')]).map(async (key) => {
-        const country = this[Symbol.for('countries')][key];
-        const $flagImage = document.createElement('img');
-        $flagImage.classList.add(this.settings.flagIconCSSClass);
-        $flagImage.alt = `${key} flag`;
-        Object.assign(country, { flagImage: $flagImage });
-        return fetch(
-          `${this.settings.flagAPI}/${key}/${this.settings.flagStyle}`
-          + `/${this.settings.flagIconSize}.png`,
-          init,
-        )
-          .then((response) => response.blob())
-          .then((blob) => {
-            $flagImage.src = URL.createObjectURL(blob);
-          });
-      }),
-    );
   }
 
   reloadCountriesData() {
