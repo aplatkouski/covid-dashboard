@@ -54,8 +54,8 @@ export default class MapBlock {
     htmlContainer: $mainContainer,
     casesByCountry,
     options = {
-      group: 'total',
-      subGroup: 'confirmed',
+      dataType: 'total',
+      caseType: 'confirmed',
     },
     selectCountryCallback,
   }) {
@@ -91,8 +91,8 @@ export default class MapBlock {
     this.map.setMaxBounds(L.latLngBounds(southWest, northEast));
 
     this.getPopupContent = (country) => {
-      const covidStatisticsData = country[this.options.group][this.options.subGroup];
-      const popupMessage = this.settings[this.options.group][this.options.subGroup];
+      const covidStatisticsData = country[this.options.dataType][this.options.caseType];
+      const popupMessage = this.settings[this.options.dataType][this.options.caseType];
 
       const $flagImage = document.createElement('img');
       $flagImage.src = country.flagUrl;
@@ -176,7 +176,7 @@ export default class MapBlock {
   }
 
   addCircle(country) {
-    const radius = country[this.options.group][this.options.subGroup] / 10;
+    const radius = country[this.options.dataType][this.options.caseType] / 10;
 
     const currentCountry = country;
     currentCountry.circle = L.circle(
