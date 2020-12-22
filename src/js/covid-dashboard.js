@@ -11,6 +11,7 @@ const settings = {
   mapBlockCSSClass: 'map-block',
   tableBlockCSSClass: 'table-block',
   chartBlockCSSClass: 'chart-block',
+  defaultOptions: { caseType: 'confirmed', dataType: 'lastDay' },
 };
 
 export default class CovidDashboard {
