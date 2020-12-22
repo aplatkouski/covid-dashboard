@@ -1,5 +1,70 @@
 import Chart from 'chart.js';
 
+const settings = {
+  chartOptions: {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: '',
+          borderDash: [5, 5],
+          showLine: true,
+          lineTension: 0,
+          data: [],
+          backgroundColor: 'transparent',
+          borderColor: '',
+          borderWidth: 3,
+        },
+      ],
+    },
+    options: {
+      legend: {
+        display: true,
+        position: 'top',
+        labels: {
+          boxWidth: 0,
+          fontColor: 'black',
+        },
+      },
+      scales: {
+        xAxes: [
+          {
+            gridLines: {
+              color: 'black',
+              borderDash: [1, 2],
+              display: true,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Date',
+              fontColor: 'black',
+            },
+          },
+        ],
+        yAxes: [
+          {
+            gridLines: {
+              color: 'black',
+              borderDash: [1, 2],
+              display: true,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Number of cases',
+              fontColor: 'black',
+            },
+            ticks: {
+              beginAtZero: true,
+              stepSize: 50000,
+            },
+          },
+        ],
+      },
+    },
+  },
+};
+
 const CHART_DATA_TYPES = {
   confirmed: {
     type: 'confirmed',
@@ -43,6 +108,7 @@ export default class ChartBlock {
     globalCases,
     selectCountryCallback,
   }) {
+    this.settings = settings;
     this.casesByCountry = casesByCountry;
     this.globalCases = globalCases;
     this.selectCountryCallback = selectCountryCallback;
@@ -66,69 +132,7 @@ export default class ChartBlock {
     this.$documentFragment.appendChild(this.chartTypeSelector);
     $htmlContainer.appendChild(this.$documentFragment);
     this.$chart = this.$chartCanvas.getContext('2d');
-    this.chartOptions = {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [
-          {
-            label: '',
-            borderDash: [5, 5],
-            showLine: true,
-            lineTension: 0,
-            data: [],
-            backgroundColor: 'transparent',
-            borderColor: '',
-            borderWidth: 3,
-          },
-        ],
-      },
-      options: {
-        legend: {
-          display: true,
-          position: 'top',
-          labels: {
-            boxWidth: 0,
-            fontColor: 'black',
-          },
-        },
-        scales: {
-          xAxes: [
-            {
-              gridLines: {
-                color: 'black',
-                borderDash: [1, 2],
-                display: true,
-              },
-              scaleLabel: {
-                display: true,
-                labelString: 'Date',
-                fontColor: 'black',
-              },
-            },
-          ],
-          yAxes: [
-            {
-              gridLines: {
-                color: 'black',
-                borderDash: [1, 2],
-                display: true,
-              },
-              scaleLabel: {
-                display: true,
-                labelString: 'Number of cases',
-                fontColor: 'black',
-              },
-              ticks: {
-                beginAtZero: true,
-                stepSize: 50000,
-              },
-            },
-          ],
-        },
-      },
-    };
-    this.myChart = new Chart(this.$chart, this.chartOptions);
+    this.myChart = new Chart(this.$chart, this.settings.chartOptions);
     this.render();
     // setTimeout(() => {
     //   this.updateDataSet();
@@ -161,10 +165,10 @@ export default class ChartBlock {
 
   fillTestPoints(source) {
     for (let i = 1; i < 5; i += 1) {
-      this.chartOptions.data.datasets[0].data
+      this.settings.chartOptions.data.datasets[0].data
         .push(source[this.chartType.key][this.chartDataType.key]
           * (i === 1 ? 1 : Math.random()));
-      this.chartOptions.data.labels.push(`${i}.12.2020`);
+      this.settings.chartOptions.data.labels.push(`${i}.12.2020`);
     }
   }
 
@@ -172,10 +176,10 @@ export default class ChartBlock {
     // this.setchartDataType = 'deaths';
     // this.setchartType = 'last day cases per 100k';
     // this.dataSource = null;
-    this.chartOptions.data.datasets[0].label = `${this.chartDataType.type}: ${this.chartType.type}`;
-    this.chartOptions.data.datasets[0].data = [];
-    this.chartOptions.data.labels = [];
-    this.chartOptions.data.datasets[0].borderColor = this.chartDataType.color;
+    this.settings.chartOptions.data.datasets[0].label = `${this.chartDataType.type}: ${this.chartType.type}`;
+    this.settings.chartOptions.data.datasets[0].data = [];
+    this.settings.chartOptions.data.labels = [];
+    this.settings.chartOptions.data.datasets[0].borderColor = this.chartDataType.color;
     if (this.dataSource === null) {
       this.fillTestPoints(this.globalCases);
     } else {
