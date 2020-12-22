@@ -85,6 +85,11 @@ const settings = {
     total: { type: 'total cases', key: 'total' },
     totalComparative: { type: 'total cases per 100k', key: 'totalComparative' },
   },
+  CSSClass: {
+    chartWrapper: 'chart-block--chartWrapper',
+    controlsWrapper: 'chart-block--controlsWrapper',
+  },
+
 };
 
 function createSelectElement(optionsObj, defaultValue) {
@@ -97,6 +102,13 @@ function createSelectElement(optionsObj, defaultValue) {
     $select.appendChild($option);
   });
   return $select;
+}
+
+function setLabel($FormElement, labelText) {
+  const $label = document.createElement('label');
+  $label.innerText = labelText;
+  $label.appendChild($FormElement);
+  return $label;
 }
 
 export default class ChartBlock {
@@ -124,8 +136,12 @@ export default class ChartBlock {
     this.getObjByProperty = (obj, propertyName, typeName) => Object.values(obj)
       .filter((value) => value[propertyName] === typeName)[0];
 
+    this.chartWrapper = document.createElement('div');
+    this.chartWrapper.classList.add(this.settings.CSSClass.chartWrapper);
     this.$chartCanvas = document.createElement('canvas');
 
+    this.controlsWrapper = document.createElement('div');
+    this.controlsWrapper.classList.add(this.settings.CSSClass.controlsWrapper);
     this.$caseTypeSelector = createSelectElement(
       this.settings.caseTypes,
       this.currentCaseType.type,
@@ -144,10 +160,19 @@ export default class ChartBlock {
       (e) => this.eventHandler(e),
     );
 
+    this.updateButton = document.createElement('button');
+    this.updateButton.innerText = 'Update Chart';
+    this.updateButton.addEventListener(
+      'click', (e) => this.eventHandler(e),
+    );
+
     this.$documentFragment = document.createDocumentFragment();
-    this.$documentFragment.appendChild(this.$chartCanvas);
-    this.$documentFragment.appendChild(this.$caseTypeSelector);
-    this.$documentFragment.appendChild(this.$dataTypeSelector);
+    this.$documentFragment.appendChild(this.chartWrapper);
+    this.chartWrapper.appendChild(this.$chartCanvas);
+    this.$documentFragment.appendChild(this.controlsWrapper);
+    this.controlsWrapper.appendChild(setLabel(this.$caseTypeSelector, 'Case types:'));
+    this.controlsWrapper.appendChild(setLabel(this.$dataTypeSelector, 'Data types:'));
+    this.controlsWrapper.appendChild(this.updateButton);
     $htmlContainer.appendChild(this.$documentFragment);
 
     this.$chart = this.$chartCanvas.getContext('2d');
@@ -177,11 +202,11 @@ export default class ChartBlock {
   eventHandler(e) {
     if (e.target === this.$caseTypeSelector) {
       this.setcurrentCaseType = e.target.value;
-    }
-    if (e.target === this.$dataTypeSelector) {
+    } else if (e.target === this.$dataTypeSelector) {
       this.setcurrentDataType = e.target.value;
+    } else if (e.target === this.updateButton) {
+      this.render();
     }
-    this.render();
   }
 
   selectCountry(newDataSource) {
