@@ -1,29 +1,34 @@
+import typeDescription from './type-description';
+
 export default class GlobalCasesBlock {
   constructor({
-    casesByCountry,
     globalCases,
     htmlContainer: $mainContainer,
     options = {
-      group: 'total',
-      subGroup: 'confirmed',
+      dataType: 'total',
+      caseType: 'lastDay',
     },
   }) {
     this.$mainContainer = $mainContainer;
     this.globalCasesData = globalCases;
-    this.casesByCountry = casesByCountry;
     this.options = options;
 
-    this.$mainContainer.innerHTML = `<h2>${this.globalCasesData.total.confirmed}</h2>`;
+    this.getContent = () => `<h2 title="${
+      typeDescription[this.options.dataType][this.options.caseType]
+    }">Global: ${
+      this.globalCasesData[this.options.dataType][this.options.caseType]
+    }</h2>`;
+
+    this.$mainContainer.innerHTML = this.getContent();
   }
 
-  selectCountry(alpha2Code) {
-    this.$mainContainer.innerHTML = `<h2>
-    <img class="flag-icon" src="${this.casesByCountry[alpha2Code].flagUrl}" 
-    alt="${alpha2Code} flag">${
-  this.casesByCountry[alpha2Code][this.options.group][this.options.subGroup]}</h2>`;
+  selectType({ dataType, caseType }) {
+    this.options.dateType = dataType;
+    this.options.caseType = caseType;
+    this.$mainContainer.innerHTML = this.getContent();
   }
 
   render() {
-    this.$mainContainer.innerHTML = `<h2>${this.globalCasesData.total.confirmed}</h2>`;
+    this.$mainContainer.innerHTM = this.getContent();
   }
 }

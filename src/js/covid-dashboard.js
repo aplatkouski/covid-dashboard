@@ -1,7 +1,7 @@
 import ApiGateway from './api-gateway';
+import ChartBlock from './chart-block';
 import GlobalCasesBlock from './global-cases-block';
 import MapBlock from './map-block';
-import ChartBlock from './chart-block';
 
 const settings = {
   mainContainerCSSClass: 'main-container',
@@ -11,6 +11,7 @@ const settings = {
   mapBlockCSSClass: 'map-block',
   tableBlockCSSClass: 'table-block',
   chartBlockCSSClass: 'chart-block',
+  defaultOptions: { caseType: 'confirmed', dataType: 'lastDay' },
 };
 
 export default class CovidDashboard {
@@ -68,21 +69,23 @@ export default class CovidDashboard {
     this.apiGateway = new ApiGateway();
     this.apiGateway.fetchAndReloadAllData().then(() => {
       const globalCasesBlock = new GlobalCasesBlock({
-        htmlContainer: this.$globalCases,
-        casesByCountry: this.apiGateway.casesByCountry,
         globalCases: this.apiGateway.globalCases,
+        htmlContainer: this.$globalCases,
+        options: this.settings.defaultOptions,
       });
       const mapBlock = new MapBlock({
-        htmlContainer: this.$mapBlock,
         casesByCountry: this.apiGateway.casesByCountry,
         globalCases: this.apiGateway.globalCases,
+        htmlContainer: this.$mapBlock,
+        options: this.settings.defaultOptions,
         selectCountryCallback: this.selectCountry,
         selectTypeCallback: this.selectType,
       });
       const chartBlock = new ChartBlock({
-        htmlContainer: this.$chartBlock,
         casesByCountry: this.apiGateway.casesByCountry,
         globalCases: this.apiGateway.globalCases,
+        htmlContainer: this.$chartBlock,
+        options: this.settings.defaultOptions,
         selectCountryCallback: this.selectCountry,
         selectTypeCallback: this.selectType,
       });
