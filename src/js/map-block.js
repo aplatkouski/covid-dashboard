@@ -3,13 +3,19 @@ import countryFeatureCollection from './countries-feature-colletion';
 import typeDescription from './type-description';
 
 const settings = {
-  mapbox: 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpemR0ZGJsMmdnMzJ4c2N5MnNiYm1tNCJ9.qj4V3FNrWCMNM58tR-iV8Q',
   defaultCountryAlpha2Code: 'BY',
   flagIconCSSClass: 'flag-icon',
-  tileLayerAttribution: 'Map data &copy; <a'
+  mapOptions: {
+    attribution: 'Map data &copy; <a'
     + ' href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     + ' contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-  // eslint-disable-next-line no-unused-vars
+    maxZoom: 5,
+    minZoom: 2,
+    id: 'mapbox/dark-v10',
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpemR0ZGJsMmdnMzJ4c2N5MnNiYm1tNCJ9.qj4V3FNrWCMNM58tR-iV8Q',
+  },
   featureStyle: {
     color: 'white',
     dashArray: '3',
@@ -18,7 +24,6 @@ const settings = {
     opacity: 0,
     weight: 1,
   },
-  // eslint-disable-next-line no-unused-vars
   selectedFeatureStyle: {
     color: 'white',
     dashArray: '3',
@@ -61,21 +66,13 @@ export default class MapBlock {
     this.map = L.map('covid-map').addLayer(
       L.tileLayer(
         'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
-        {
-          attribution: this.settings.tileLayerAttribution,
-          maxZoom: 6,
-          minZoom: 3,
-          id: 'mapbox/dark-v10',
-          tileSize: 512,
-          zoomOffset: -1,
-          accessToken: this.settings.mapbox,
-        },
+        this.settings.mapOptions,
       ),
     ).setView(
       [defaultCountry.latitude, defaultCountry.longitude], 6,
     );
-    const southWest = L.latLng(-70, 170);
-    const northEast = L.latLng(85, -160);
+    const southWest = L.latLng(-70, 180);
+    const northEast = L.latLng(85, -180);
     this.map.setMaxBounds(L.latLngBounds(southWest, northEast));
 
     this.getPopupContent = (country) => {
