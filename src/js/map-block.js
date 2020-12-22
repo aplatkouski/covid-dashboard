@@ -27,6 +27,11 @@ const settings = {
     opacity: 0.2,
     weight: 2,
   },
+  calculationRadius: {
+    min: 10000,
+    max: 400000,
+    base: 4,
+  },
   lastDay: {
     confirmed: 'количество случаев заболевания за последний день в абсолютных величинах',
     deaths: 'количество летальных исходов за последний день в абсолютных величинах',
@@ -67,6 +72,8 @@ export default class MapBlock {
       ? selectCountryCallback
       : () => {};
     this.selectedCountry = undefined;
+    this.maxValues = {};
+    this.assignMaxValues();
 
     const defaultCountry = this.casesByCountry[this.settings.defaultCountryAlpha2Code];
 
@@ -170,6 +177,22 @@ export default class MapBlock {
     });
   }
 
+  assignMaxValues() {
+    ['lastDay', 'lastDayComparative', 'total', 'totalComparative'].forEach(
+      (dataType) => {
+        if (!this.maxValues[dataType]) {
+          this.maxValues[dataType] = {};
+        }
+        ['confirmed', 'deaths', 'recovered'].forEach((caseType) => {
+          this.maxValues[dataType][caseType] = Math.max(
+            ...Object.values(this.casesByCountry)
+              .map((country) => country[dataType][caseType]),
+          );
+        });
+      },
+    );
+  }
+
   selectCountry(alpha2Code) {
     const country = this.casesByCountry[alpha2Code];
 
@@ -192,10 +215,37 @@ export default class MapBlock {
   selectType({ dataType, caseType }) {
     this.options.dataType = dataType;
     this.options.caseType = caseType;
+
+    Object.values(this.casesByCountry).forEach((country) => {
+      if (country[Symbol.for('popup')]) {
+        const covidStatisticsData = country[this.options.dataType][this.options.caseType];
+        const popupMessage = this.settings[this.options.dataType][this.options.caseType];
+        const $popupContent = country[Symbol.for('popup')]?.getContent();
+        const $p = $popupContent.querySelector('p');
+        $p.innerHTML = '';
+        $p.appendChild(document.createTextNode(
+          `${covidStatisticsData} - ${popupMessage}`,
+        ));
+      }
+
+      if (country[Symbol.for('circle')]) {
+        this.map.removeLayer(country[Symbol.for('circle')]);
+        this.addCircle(country);
+      }
+    });
   }
 
   addCircle(country) {
-    const radius = country[this.options.dataType][this.options.caseType] / 10;
+    const value = country[this.options.dataType][this.options.caseType];
+    const radius = value
+      ? (this.settings.calculationRadius.base ** (
+        country[this.options.dataType][this.options.caseType]
+        / this.maxValues[this.options.dataType][this.options.caseType]
+      ) * (
+        this.settings.calculationRadius.max
+        / this.settings.calculationRadius.base
+      ))
+      : this.settings.calculationRadius.min;
 
     const currentCountry = country;
     currentCountry[Symbol.for('circle')] = L.circle(
