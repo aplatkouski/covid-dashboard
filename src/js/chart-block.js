@@ -63,7 +63,7 @@ const settings = {
       },
     },
   },
-  dataTypes: {
+  caseTypes: {
     confirmed: {
       type: 'confirmed',
       key: 'confirmed',
@@ -115,7 +115,7 @@ export default class ChartBlock {
     this.casesByCountry = casesByCountry;
     this.globalCases = globalCases;
     this.selectCountryCallback = selectCountryCallback;
-    this.chartDataType = this.settings.dataTypes[options.caseType];
+    this.chartDataType = this.settings.caseTypes[options.caseType];
     this.chartType = this.settings.chartTypes[options.dataType];
     this.dataSource = null;
 
@@ -124,7 +124,7 @@ export default class ChartBlock {
 
     this.$chartCanvas = document.createElement('canvas');
     this.chartDataTypeSelector = createSelectElement(
-      this.settings.dataTypes,
+      this.settings.caseTypes,
       this.chartDataType.type,
     );
     this.chartDataTypeSelector.addEventListener('change',
@@ -152,7 +152,7 @@ export default class ChartBlock {
 
   set setchartDataType(dataType) {
     this.chartDataType = this.getObjByProperty(
-      this.settings.dataTypes, 'key', dataType,
+      this.settings.caseTypes, 'key', dataType,
     );
   }
 
