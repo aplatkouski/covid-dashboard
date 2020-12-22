@@ -96,7 +96,7 @@ export default class MapBlock {
 
       const $flagImage = document.createElement('img');
       $flagImage.src = country.flagUrl;
-      $flagImage.alt = `${country.alpha2Code} flag`;
+      $flagImage.alt = `${country.alpha2Code || 'country'} flag`;
       $flagImage.classList.add(this.settings.flagIconCSSClass);
 
       const $h2 = document.createElement('h2');
@@ -148,19 +148,24 @@ export default class MapBlock {
             this.selectedCountry[Symbol.for('layer')],
           );
         }
-        const country = this.casesByCountry[e.layer.feature.properties.alpha2Code];
-        this.selectedCountry = country;
-        country[Symbol.for('popup')]?.setLatLng(
-          [country.latitude, country.longitude],
-        ).openOn(this.map);
-        country[Symbol.for('layer')]?.setStyle(
-          this.settings.selectedFeatureStyle,
-        );
+        const props = e.layer.feature.properties;
+        if (
+          props.alpha2Code
+          && {}.hasOwnProperty.call(this.casesByCountry, props.alpha2Code)
+        ) {
+          const country = this.casesByCountry[props.alpha2Code];
+          this.selectedCountry = country;
+          country[Symbol.for('popup')]?.setLatLng(
+            [country.latitude, country.longitude],
+          ).openOn(this.map);
+          country[Symbol.for('layer')]?.setStyle(
+            this.settings.selectedFeatureStyle,
+          );
+        }
       },
       click: (e) => {
-        if (e.layer.feature.properties.alpha2Code) {
-          this.selectCountryCallback(e.layer.feature.properties.alpha2Code);
-        }
+        const props = e.layer.feature.properties;
+        if (props.alpha2Code) this.selectCountryCallback(props.alpha2Code);
       },
     });
   }
