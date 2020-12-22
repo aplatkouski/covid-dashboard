@@ -2,7 +2,7 @@ import L from 'leaflet';
 import countryFeatureCollection from './countries-feature-colletion';
 
 const settings = {
-  mapbox: 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpeHlyOWZwMThtYjJxbXd2cHRwajIyNyJ9.jbgJSxSYgjaS_moNI_RLgw',
+  mapbox: 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpemR0ZGJsMmdnMzJ4c2N5MnNiYm1tNCJ9.qj4V3FNrWCMNM58tR-iV8Q',
   defaultCountryAlpha2Code: 'BY',
   flagIconCSSClass: 'flag-icon',
   tileLayerAttribution: 'Map data &copy; <a'
