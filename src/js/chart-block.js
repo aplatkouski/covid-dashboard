@@ -115,31 +115,37 @@ export default class ChartBlock {
     this.casesByCountry = casesByCountry;
     this.globalCases = globalCases;
     this.selectCountryCallback = selectCountryCallback;
-    this.chartDataType = this.settings.caseTypes[options.caseType];
-    this.chartType = this.settings.dataTypes[options.dataType];
+    this.currentCaseType = this.settings.caseTypes[options.caseType];
+    this.currentDataType = this.settings.dataTypes[options.dataType];
     this.dataSource = null;
 
     this.getObjByProperty = (obj, propertyName, typeName) => Object.values(obj)
       .filter((value) => value[propertyName] === typeName)[0];
 
     this.$chartCanvas = document.createElement('canvas');
-    this.chartDataTypeSelector = createSelectElement(
+
+    this.$caseTypeSelector = createSelectElement(
       this.settings.caseTypes,
-      this.chartDataType.type,
+      this.currentCaseType.type,
     );
-    this.chartDataTypeSelector.addEventListener('change',
-      (e) => this.eventHandler(e));
-    this.chartTypeSelector = createSelectElement(
+    this.$caseTypeSelector.addEventListener(
+      'change',
+      (e) => this.eventHandler(e),
+    );
+
+    this.$dataTypeSelector = createSelectElement(
       this.settings.dataTypes,
-      this.chartType.type,
+      this.currentDataType.type,
     );
-    this.chartTypeSelector.addEventListener('change',
-      (e) => this.eventHandler(e));
+    this.$dataTypeSelector.addEventListener(
+      'change',
+      (e) => this.eventHandler(e),
+    );
 
     this.$documentFragment = document.createDocumentFragment();
     this.$documentFragment.appendChild(this.$chartCanvas);
-    this.$documentFragment.appendChild(this.chartDataTypeSelector);
-    this.$documentFragment.appendChild(this.chartTypeSelector);
+    this.$documentFragment.appendChild(this.$caseTypeSelector);
+    this.$documentFragment.appendChild(this.$dataTypeSelector);
     $htmlContainer.appendChild(this.$documentFragment);
 
     this.$chart = this.$chartCanvas.getContext('2d');
@@ -150,24 +156,24 @@ export default class ChartBlock {
     // }, 5000);
   }
 
-  set setchartDataType(dataType) {
-    this.chartDataType = this.getObjByProperty(
-      this.settings.caseTypes, 'key', dataType,
+  set setcurrentCaseType(caseType) {
+    this.currentCaseType = this.getObjByProperty(
+      this.settings.caseTypes, 'key', caseType,
     );
   }
 
-  set setchartType(chartType) {
-    this.chartType = this.getObjByProperty(
-      this.settings.dataTypes, 'key', chartType,
+  set setcurrentDataType(dataType) {
+    this.currentDataType = this.getObjByProperty(
+      this.settings.dataTypes, 'key', dataType,
     );
   }
 
   eventHandler(e) {
-    if (e.target === this.chartDataTypeSelector) {
-      this.setchartDataType = e.target.value;
+    if (e.target === this.$caseTypeSelector) {
+      this.setcurrentCaseType = e.target.value;
     }
-    if (e.target === this.chartTypeSelector) {
-      this.setchartType = e.target.value;
+    if (e.target === this.$dataTypeSelector) {
+      this.setcurrentDataType = e.target.value;
     }
     this.render();
   }
@@ -180,20 +186,20 @@ export default class ChartBlock {
   fillTestPoints(source) {
     for (let i = 1; i < 5; i += 1) {
       this.settings.chartOptions.data.datasets[0].data
-        .push(source[this.chartType.key][this.chartDataType.key]
+        .push(source[this.currentDataType.key][this.currentCaseType.key]
           * (i === 1 ? 1 : Math.random()));
       this.settings.chartOptions.data.labels.push(`${i}.12.2020`);
     }
   }
 
   updateDataSet() {
-    // this.setchartDataType = 'deaths';
-    // this.setchartType = 'last day cases per 100k';
+    // this.setcurrentCaseType = 'deaths';
+    // this.setcurrentDataType = 'last day cases per 100k';
     // this.dataSource = null;
-    this.settings.chartOptions.data.datasets[0].label = `${this.chartDataType.type}: ${this.chartType.type}`;
+    this.settings.chartOptions.data.datasets[0].label = `${this.currentCaseType.type}: ${this.currentDataType.type}`;
     this.settings.chartOptions.data.datasets[0].data = [];
     this.settings.chartOptions.data.labels = [];
-    this.settings.chartOptions.data.datasets[0].borderColor = this.chartDataType.color;
+    this.settings.chartOptions.data.datasets[0].borderColor = this.currentCaseType.color;
     if (this.dataSource === null) {
       this.fillTestPoints(this.globalCases);
     } else {
