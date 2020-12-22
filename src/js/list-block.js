@@ -29,11 +29,11 @@ const searchParametersArr = [
   },
   {
     text: 'Total Deaths per 100k',
-    id: 'total-cases-100',
+    id: 'total-deaths-100',
   },
   {
     text: 'Total Recovered per 100k',
-    id: 'total-cases-100',
+    id: 'total-recovered-100',
   },
 
   {
@@ -140,6 +140,32 @@ function sortArr(arr, param) {
   return arr.sort((a, b) => (a[param] < b[param] ? 1 : -1));
 }
 
+function changeList(e) {
+  const listToRemove = document.querySelector('.list-items');
+  if (listToRemove) {
+    listToRemove.remove();
+  }
+  const obj = JSON.parse(localStorage.getItem('countries'));
+  const arr = createArr(obj);
+  const { id } = e.target;
+  const currentArr = sortArr(arr, id);
+  adjustSearchParameters(id);
+  const listItems = createListItems(currentArr, id);
+  const list = document.querySelector('.list');
+  list.append(listItems);
+}
+
+function createSearchParameters() {
+  const searchParameters = createItem('div', 'search-parameters');
+  for (let i = 0; i < searchParametersArr.length; i += 1) {
+    const item = createItem('div', 'search-parameter', `${searchParametersArr[i].text}`);
+    item.id = `${searchParametersArr[i].id}`;
+    item.addEventListener('click', changeList);
+    searchParameters.append(item);
+  }
+  return searchParameters;
+}
+
 export default class ListBlock {
   constructor({
     casesByCountry,
@@ -154,7 +180,7 @@ export default class ListBlock {
 
   createListWrapper() {
     const wrapper = createItem('div', 'list-wrapper');
-    const searchParameters = this.createSearchParameters();
+    const searchParameters = createSearchParameters();
     const searchBar = createSearchBar();
     const list = createItem('div', 'list');
     const currentArr = sortArr(this.arr, 'total-cases');
@@ -164,29 +190,5 @@ export default class ListBlock {
     document.body.append(wrapper);
     adjustSearchParameters('total-cases');
     return wrapper;
-  }
-
-  createSearchParameters() {
-    const searchParameters = createItem('div', 'search-parameters');
-    for (let i = 0; i < searchParametersArr.length; i += 1) {
-      const item = createItem('div', 'search-parameter', `${searchParametersArr[i].text}`);
-      item.id = `${searchParametersArr[i].id}`;
-      item.addEventListener('click', this.changeList);
-      searchParameters.append(item);
-    }
-    return searchParameters;
-  }
-
-  changeList(e) {
-    const listToRemove = document.querySelector('.list-items');
-    if (listToRemove) {
-      listToRemove.remove();
-    }
-    const { id } = e.target;
-    const currentArr = sortArr(this.arr, id);
-    adjustSearchParameters(id);
-    const listItems = createListItems(currentArr, id);
-    const list = document.querySelector('.list');
-    list.append(listItems);
   }
 }

@@ -184,6 +184,7 @@ footer {
   margin: 5px;
   border: 1px solid black;
   text-align: center;
+  font-size: 10px;
 }
 
 .search-parameter-active {
@@ -240,6 +241,7 @@ footer {
 .card-country-name {
   width: 40%;
   text-align: center;
+  overflow: hidden;
 }
 
 .card-flag {
