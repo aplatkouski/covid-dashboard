@@ -13,28 +13,22 @@ export default class GlobalCasesBlock {
     this.globalCasesData = globalCases;
     this.options = options;
 
-    this.$mainContainer.innerHTML = `<h2 title="${
+    this.getContent = () => `<h2 title="${
       typeDescription[this.options.dataType][this.options.caseType]
-    }">${
+    }">Global: ${
       this.globalCasesData[this.options.dataType][this.options.caseType]
     }</h2>`;
+
+    this.$mainContainer.innerHTML = this.getContent();
   }
 
   selectType({ dataType, caseType }) {
     this.options.dateType = dataType;
     this.options.caseType = caseType;
-    this.$mainContainer.innerHTML = `<h2 title="${
-      typeDescription[this.options.dataType][this.options.caseType]
-    }">${
-      this.globalCasesData[this.options.dataType][this.options.caseType]
-    }</h2>`;
+    this.$mainContainer.innerHTML = this.getContent();
   }
 
   render() {
-    this.$mainContainer.innerHTML = `<h2 title="${
-      typeDescription[this.options.dataType][this.options.caseType]
-    }">${
-      this.globalCasesData[this.options.dataType][this.options.caseType]
-    }</h2>`;
+    this.$mainContainer.innerHTM = this.getContent();
   }
 }
