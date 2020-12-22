@@ -109,12 +109,14 @@ export default class ChartBlock {
       dataType: 'lastDay',
     },
     selectCountryCallback,
+    selectTypeCallback,
   }) {
     this.settings = settings;
     this.options = options;
     this.casesByCountry = casesByCountry;
     this.globalCases = globalCases;
     this.selectCountryCallback = selectCountryCallback;
+    this.selectTypeCallback = selectTypeCallback;
     this.currentCaseType = this.settings.caseTypes[options.caseType];
     this.currentDataType = this.settings.dataTypes[options.dataType];
     this.dataSource = null;
@@ -160,12 +162,16 @@ export default class ChartBlock {
     this.currentCaseType = this.getObjByProperty(
       this.settings.caseTypes, 'key', caseType,
     );
+    this.options.caseType = caseType;
+    this.selectTypeCallback(this.options);
   }
 
   set setcurrentDataType(dataType) {
     this.currentDataType = this.getObjByProperty(
       this.settings.dataTypes, 'key', dataType,
     );
+    this.options.dataType = dataType;
+    this.selectTypeCallback(this.options);
   }
 
   eventHandler(e) {
