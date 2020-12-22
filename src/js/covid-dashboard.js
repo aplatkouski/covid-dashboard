@@ -1,7 +1,7 @@
 import ApiGateway from './api-gateway';
+import ChartBlock from './chart-block';
 import GlobalCasesBlock from './global-cases-block';
 import MapBlock from './map-block';
-import ChartBlock from './chart-block';
 
 const settings = {
   mainContainerCSSClass: 'main-container',
