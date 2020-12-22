@@ -1,6 +1,7 @@
 import ApiGateway from './api-gateway';
 import GlobalCasesBlock from './global-cases-block';
 import MapBlock from './map-block';
+import ChartBlock from './chart-block';
 
 const settings = {
   mainContainerCSSClass: 'main-container',
@@ -56,6 +57,14 @@ export default class CovidDashboard {
       });
     };
 
+    this.selectType = ({ dataType, caseType }) => {
+      this.blocks.forEach((block) => {
+        if (typeof block.selectType === 'function') {
+          block.selectType({ dataType, caseType });
+        }
+      });
+    };
+
     this.apiGateway = new ApiGateway();
     this.apiGateway.fetchAndReloadAllData().then(() => {
       const globalCasesBlock = new GlobalCasesBlock({
@@ -68,8 +77,16 @@ export default class CovidDashboard {
         casesByCountry: this.apiGateway.casesByCountry,
         globalCases: this.apiGateway.globalCases,
         selectCountryCallback: this.selectCountry,
+        selectTypeCallback: this.selectType,
       });
-      this.blocks.push(globalCasesBlock, mapBlock);
+      const chartBlock = new ChartBlock({
+        htmlContainer: this.$chartBlock,
+        casesByCountry: this.apiGateway.casesByCountry,
+        globalCases: this.apiGateway.globalCases,
+        selectCountryCallback: this.selectCountry,
+        selectTypeCallback: this.selectType,
+      });
+      this.blocks.push(globalCasesBlock, mapBlock, chartBlock);
     });
 
     // auto-sync
