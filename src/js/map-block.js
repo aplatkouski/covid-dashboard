@@ -40,7 +40,7 @@ export default class MapBlock {
     htmlContainer: $mainContainer,
     casesByCountry,
     options = {
-      dataType: 'total',
+      dataType: 'lastDay',
       caseType: 'confirmed',
     },
     selectCountryCallback,
