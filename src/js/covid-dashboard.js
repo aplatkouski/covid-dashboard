@@ -70,13 +70,13 @@ export default class CovidDashboard {
         globalCases: this.apiGateway.globalCases,
         selectCountryCallback: this.selectCountry,
       });
-      const covidChart = new ChartBlock({
+      const chartBlock = new ChartBlock({
         htmlContainer: this.$chartBlock,
         casesByCountry: this.apiGateway.casesByCountry,
         globalCases: this.apiGateway.globalCases,
         selectCountryCallback: this.selectCountry,
       });
-      this.blocks.push(globalCasesBlock, mapBlock, covidChart);
+      this.blocks.push(globalCasesBlock, mapBlock, chartBlock);
     });
 
     // auto-sync
