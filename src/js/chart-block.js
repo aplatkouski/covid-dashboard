@@ -76,7 +76,7 @@ const settings = {
       color: 'rgba(63, 203, 35, 1)',
     },
   },
-  chartTypes: {
+  dataTypes: {
     lastDay: { type: 'last day cases', key: 'lastDay' },
     lastDayComparative: {
       type: 'last day cases per 100k',
@@ -116,7 +116,7 @@ export default class ChartBlock {
     this.globalCases = globalCases;
     this.selectCountryCallback = selectCountryCallback;
     this.chartDataType = this.settings.caseTypes[options.caseType];
-    this.chartType = this.settings.chartTypes[options.dataType];
+    this.chartType = this.settings.dataTypes[options.dataType];
     this.dataSource = null;
 
     this.getObjByProperty = (obj, propertyName, typeName) => Object.values(obj)
@@ -130,7 +130,7 @@ export default class ChartBlock {
     this.chartDataTypeSelector.addEventListener('change',
       (e) => this.eventHandler(e));
     this.chartTypeSelector = createSelectElement(
-      this.settings.chartTypes,
+      this.settings.dataTypes,
       this.chartType.type,
     );
     this.chartTypeSelector.addEventListener('change',
@@ -158,7 +158,7 @@ export default class ChartBlock {
 
   set setchartType(chartType) {
     this.chartType = this.getObjByProperty(
-      this.settings.chartTypes, 'key', chartType,
+      this.settings.dataTypes, 'key', chartType,
     );
   }
 
