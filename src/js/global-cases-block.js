@@ -1,6 +1,5 @@
 export default class GlobalCasesBlock {
   constructor({
-    casesByCountry,
     globalCases,
     htmlContainer: $mainContainer,
     options = {
@@ -10,7 +9,6 @@ export default class GlobalCasesBlock {
   }) {
     this.$mainContainer = $mainContainer;
     this.globalCasesData = globalCases;
-    this.casesByCountry = casesByCountry;
     this.options = options;
 
     this.$mainContainer.innerHTML = `<h2>${
