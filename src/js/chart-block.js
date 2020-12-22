@@ -6,7 +6,7 @@ const CHART_DATA_TYPES = {
   recovered: { type: 'recovered', key: 'recovered', color: 'rgba(63, 203, 35, 1)' },
 };
 const CHART_TYPES = {
-  lastday: { type: 'last day cases', key: 'lastDay' },
+  lastDay: { type: 'last day cases', key: 'lastDay' },
   lastDayComparative: { type: 'last day cases per 100k', key: 'lastDayComparative' },
   total: { type: 'total cases', key: 'total' },
   totalComparative: { type: 'total cases per 100k', key: 'totalComparative' },
@@ -34,7 +34,7 @@ export default class ChartBlock {
     this.globalCases = globalCases;
     this.selectCountryCallback = selectCountryCallback;
     this.chartDataType = CHART_DATA_TYPES.confirmed;
-    this.chartType = CHART_TYPES.lastday;
+    this.chartType = CHART_TYPES.lastDay;
     this.dataSource = null;
     this.getObjByProperty = (obj, properyName, typeName) => Object.values(obj)
       .filter((value) => value[properyName] === typeName)[0];
