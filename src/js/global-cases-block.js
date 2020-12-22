@@ -4,8 +4,8 @@ export default class GlobalCasesBlock {
     globalCases,
     htmlContainer: $mainContainer,
     options = {
-      group: 'total',
-      subGroup: 'confirmed',
+      dataType: 'total',
+      caseType: 'lastDay',
     },
   }) {
     this.$mainContainer = $mainContainer;
@@ -13,7 +13,9 @@ export default class GlobalCasesBlock {
     this.casesByCountry = casesByCountry;
     this.options = options;
 
-    this.$mainContainer.innerHTML = `<h2>${this.globalCasesData.total.confirmed}</h2>`;
+    this.$mainContainer.innerHTML = `<h2>${
+      this.globalCasesData[this.options.dataType][this.options.caseType]
+    }</h2>`;
   }
 
   render() {
