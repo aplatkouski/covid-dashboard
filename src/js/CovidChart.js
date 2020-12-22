@@ -35,7 +35,7 @@ export default class CovidChart {
     this.selectCountryCallback = selectCountryCallback;
     this.chartDataType = CHART_DATA_TYPES.confirmed;
     this.chartType = CHART_TYPES.lastday;
-    this.dataSource = 'BY';
+    this.dataSource = null;
     this.getObjByProperty = (obj, properyName, typeName) => Object.values(obj)
       .filter((value) => value[properyName] === typeName)[0];
     this.$documentFragment = document.createDocumentFragment();
@@ -152,7 +152,7 @@ export default class CovidChart {
     this.chartOptions.data.labels = [];
     this.chartOptions.data.datasets[0].borderColor = this.chartDataType.color;
     if (this.dataSource === null) {
-      this.fillTestPoints(this.casesByCountry);
+      this.fillTestPoints(this.globalCases);
     } else {
       const dataByCountry = this.getObjByProperty(this.casesByCountry, 'alpha2Code', this.dataSource);
       this.fillTestPoints(dataByCountry);
