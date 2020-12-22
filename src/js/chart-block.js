@@ -63,30 +63,28 @@ const settings = {
       },
     },
   },
-};
-
-const CHART_DATA_TYPES = {
-  confirmed: {
-    type: 'confirmed',
-    key: 'confirmed',
-    color: 'rgba(215, 217, 52, 1)',
+  dataTypes: {
+    confirmed: {
+      type: 'confirmed',
+      key: 'confirmed',
+      color: 'rgba(215, 217, 52, 1)',
+    },
+    deaths: { type: 'deaths', key: 'deaths', color: 'rgba(194, 54, 54, 1)' },
+    recovered: {
+      type: 'recovered',
+      key: 'recovered',
+      color: 'rgba(63, 203, 35, 1)',
+    },
   },
-  deaths: { type: 'deaths', key: 'deaths', color: 'rgba(194, 54, 54, 1)' },
-  recovered: {
-    type: 'recovered',
-    key: 'recovered',
-    color: 'rgba(63, 203, 35, 1)',
+  chartTypes: {
+    lastDay: { type: 'last day cases', key: 'lastDay' },
+    lastDayComparative: {
+      type: 'last day cases per 100k',
+      key: 'lastDayComparative',
+    },
+    total: { type: 'total cases', key: 'total' },
+    totalComparative: { type: 'total cases per 100k', key: 'totalComparative' },
   },
-};
-
-const CHART_TYPES = {
-  lastDay: { type: 'last day cases', key: 'lastDay' },
-  lastDayComparative: {
-    type: 'last day cases per 100k',
-    key: 'lastDayComparative',
-  },
-  total: { type: 'total cases', key: 'total' },
-  totalComparative: { type: 'total cases per 100k', key: 'totalComparative' },
 };
 
 function createSelectElement(optionsObj, defaultValue) {
@@ -112,25 +110,33 @@ export default class ChartBlock {
     this.casesByCountry = casesByCountry;
     this.globalCases = globalCases;
     this.selectCountryCallback = selectCountryCallback;
-    this.chartDataType = CHART_DATA_TYPES.confirmed;
-    this.chartType = CHART_TYPES.lastDay;
+    this.chartDataType = this.settings.dataTypes.confirmed;
+    this.chartType = this.settings.chartTypes.lastDay;
     this.dataSource = null;
+
     this.getObjByProperty = (obj, propertyName, typeName) => Object.values(obj)
       .filter((value) => value[propertyName] === typeName)[0];
-    this.$documentFragment = document.createDocumentFragment();
+
     this.$chartCanvas = document.createElement('canvas');
-    this.$documentFragment.appendChild(this.$chartCanvas);
-    this.chartDataTypeSelector = createSelectElement(CHART_DATA_TYPES,
-      this.chartDataType.type);
+    this.chartDataTypeSelector = createSelectElement(
+      this.settings.dataTypes,
+      this.chartDataType.type,
+    );
     this.chartDataTypeSelector.addEventListener('change',
       (e) => this.eventHandler(e));
-    this.$documentFragment.appendChild(this.chartDataTypeSelector);
-    this.chartTypeSelector = createSelectElement(CHART_TYPES,
-      this.chartType.type);
+    this.chartTypeSelector = createSelectElement(
+      this.settings.chartTypes,
+      this.chartType.type,
+    );
     this.chartTypeSelector.addEventListener('change',
       (e) => this.eventHandler(e));
+
+    this.$documentFragment = document.createDocumentFragment();
+    this.$documentFragment.appendChild(this.$chartCanvas);
+    this.$documentFragment.appendChild(this.chartDataTypeSelector);
     this.$documentFragment.appendChild(this.chartTypeSelector);
     $htmlContainer.appendChild(this.$documentFragment);
+
     this.$chart = this.$chartCanvas.getContext('2d');
     this.myChart = new Chart(this.$chart, this.settings.chartOptions);
     this.render();
@@ -140,12 +146,15 @@ export default class ChartBlock {
   }
 
   set setchartDataType(dataType) {
-    this.chartDataType = this.getObjByProperty(CHART_DATA_TYPES, 'key',
-      dataType);
+    this.chartDataType = this.getObjByProperty(
+      this.settings.dataTypes, 'key', dataType,
+    );
   }
 
   set setchartType(chartType) {
-    this.chartType = this.getObjByProperty(CHART_TYPES, 'key', chartType);
+    this.chartType = this.getObjByProperty(
+      this.settings.chartTypes, 'key', chartType,
+    );
   }
 
   eventHandler(e) {
