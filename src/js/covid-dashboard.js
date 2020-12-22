@@ -49,17 +49,34 @@ export default class CovidDashboard {
     this.$mainContainer.appendChild(this.$mapBlock);
     this.$mainContainer.appendChild(this.$thirdContainer);
 
+    this.selectCountry = (alpha2Code) => {
+      this.blocks.forEach((block) => {
+        if (typeof block.selectCountry === 'function') {
+          block.selectCountry(alpha2Code);
+        }
+      });
+    };
+
     this.apiGateway = new ApiGateway();
     this.apiGateway.fetchAndReloadAllData().then(() => {
-      const globalCasesBlock = new GlobalCasesBlock(this.$globalCases, this.apiGateway.globalCases);
-      const mapBlock = new MapBlock(this.$mapBlock, this.apiGateway.casesByCountry);
+      const globalCasesBlock = new GlobalCasesBlock({
+        htmlContainer: this.$globalCases,
+        casesByCountry: this.apiGateway.casesByCountry,
+        globalCases: this.apiGateway.globalCases,
+      });
+      const mapBlock = new MapBlock({
+        htmlContainer: this.$mapBlock,
+        casesByCountry: this.apiGateway.casesByCountry,
+        globalCases: this.apiGateway.globalCases,
+        selectCountryCallback: this.selectCountry,
+      });
       const covidChart = new CovidChart(
         this.$chartBlock,
         this.apiGateway.casesByCountry,
         this.apiGateway.globalCases,
         this.selectCountry,
       );
-      this.blocks.push(globalCasesBlock, mapBlock, covidChart);
+      this.blocks.push(globalCasesBlock, mapBlock, covidChart);            
     });
 
     // auto-sync
