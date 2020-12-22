@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import countryFeatureCollection from './countries-feature-colletion';
+import typeDescription from './type-description';
 
 const settings = {
   mapbox: 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpemR0ZGJsMmdnMzJ4c2N5MnNiYm1tNCJ9.qj4V3FNrWCMNM58tR-iV8Q',
@@ -31,26 +32,6 @@ const settings = {
     min: 10000,
     max: 400000,
     base: 4,
-  },
-  lastDay: {
-    confirmed: 'количество случаев заболевания за последний день в абсолютных величинах',
-    deaths: 'количество летальных исходов за последний день в абсолютных величинах',
-    recovered: 'количество выздоровевших за последний день в абсолютных величинах',
-  },
-  lastDayComparative: {
-    confirmed: 'количество случаев заболевания за последний день из расчёта на 100 тыс. населения',
-    deaths: 'количество летальных исходов за последний день из расчёта на 100 тыс. населения',
-    recovered: 'количество выздоровевших за последний день из расчёта на 100 тыс. населения',
-  },
-  total: {
-    confirmed: 'количество случаев заболевания за весь период пандемии в абсолютных величинах',
-    deaths: 'количество летальных исходов за весь период пандемии в абсолютных величинах',
-    recovered: 'количество выздоровевших за весь период пандемии в абсолютных величинах',
-  },
-  totalComparative: {
-    confirmed: 'количество случаев заболевания за весь период пандемии из расчёта на 100 тыс. населения',
-    deaths: 'количество летальных исходов за весь период пандемии из расчёта на 100 тыс. населения',
-    recovered: 'количество выздоровевших за весь период пандемии из расчёта на 100 тыс. населения',
   },
 };
 
@@ -99,7 +80,7 @@ export default class MapBlock {
 
     this.getPopupContent = (country) => {
       const covidStatisticsData = country[this.options.dataType][this.options.caseType];
-      const popupMessage = this.settings[this.options.dataType][this.options.caseType];
+      const popupMessage = typeDescription[this.options.dataType][this.options.caseType];
 
       const $flagImage = document.createElement('img');
       $flagImage.src = country.flagUrl;
@@ -219,7 +200,7 @@ export default class MapBlock {
     Object.values(this.casesByCountry).forEach((country) => {
       if (country[Symbol.for('popup')]) {
         const covidStatisticsData = country[this.options.dataType][this.options.caseType];
-        const popupMessage = this.settings[this.options.dataType][this.options.caseType];
+        const popupMessage = typeDescription[this.options.dataType][this.options.caseType];
         const $popupContent = country[Symbol.for('popup')]?.getContent();
         const $p = $popupContent.querySelector('p');
         $p.innerHTML = '';
