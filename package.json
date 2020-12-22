@@ -66,6 +66,7 @@
   },
   "homepage": "https://github.com/aplatkouski/covid-dashboard#README.md",
   "dependencies": {
+    "chart.js": "^2.9.4",
     "leaflet": "^1.7.1",
     "mapbox-gl": "^2.0.0"
   }
