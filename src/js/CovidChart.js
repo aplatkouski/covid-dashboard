@@ -132,6 +132,7 @@ export default class CovidChart {
 
   selectCountry(newDataSource) {
     this.dataSource = newDataSource;
+    this.render();
   }
 
   fillTestPoints(source) {
