@@ -122,13 +122,13 @@ export default class MapBlock {
         && {}.hasOwnProperty.call(this.casesByCountry, props.alpha2Code)
       ) {
         const country = this.casesByCountry[props.alpha2Code];
-        country.layer = layer;
+        country[Symbol.for('layer')] = layer;
 
         this.addCircle(country);
 
         const popup = L.popup();
         popup.setContent(this.getPopupContent(country));
-        country.popup = popup;
+        country[Symbol.for('popup')] = popup;
       }
     };
 
@@ -144,12 +144,18 @@ export default class MapBlock {
       mouseover: (e) => {
         this.map.closePopup();
         if (this.selectedCountry) {
-          this.geoJSONLayerGroup.resetStyle(this.selectedCountry.layer);
+          this.geoJSONLayerGroup.resetStyle(
+            this.selectedCountry[Symbol.for('layer')],
+          );
         }
         const country = this.casesByCountry[e.layer.feature.properties.alpha2Code];
         this.selectedCountry = country;
-        country.popup?.setLatLng([country.latitude, country.longitude]).openOn(this.map);
-        country.layer?.setStyle(this.settings.selectedFeatureStyle);
+        country[Symbol.for('popup')]?.setLatLng(
+          [country.latitude, country.longitude],
+        ).openOn(this.map);
+        country[Symbol.for('layer')]?.setStyle(
+          this.settings.selectedFeatureStyle,
+        );
       },
       click: (e) => {
         if (e.layer.feature.properties.alpha2Code) {
@@ -165,21 +171,30 @@ export default class MapBlock {
     this.map.flyTo([country.latitude, country.longitude]);
     // restore previous hidden circle
     if (this.selectedCountry) {
-      this.geoJSONLayerGroup.resetStyle(this.selectedCountry.layer);
+      this.geoJSONLayerGroup.resetStyle(
+        this.selectedCountry[Symbol.for('layer')],
+      );
     }
 
     this.selectedCountry = country;
-    country.layer?.setStyle(this.settings.selectedFeatureStyle);
+    country[Symbol.for('layer')]?.setStyle(this.settings.selectedFeatureStyle);
 
-    country.popup?.setLatLng([country.latitude, country.longitude])
+    country[Symbol.for('popup')]?.setLatLng(
+      [country.latitude, country.longitude],
+    )
       .openOn(this.map);
+  }
+
+  selectType({ dataType, caseType }) {
+    this.options.dataType = dataType;
+    this.options.caseType = caseType;
   }
 
   addCircle(country) {
     const radius = country[this.options.dataType][this.options.caseType] / 10;
 
     const currentCountry = country;
-    currentCountry.circle = L.circle(
+    currentCountry[Symbol.for('circle')] = L.circle(
       [country.latitude, country.longitude],
       {
         color: 'red',
@@ -189,18 +204,22 @@ export default class MapBlock {
       },
     ).addTo(this.map);
 
-    currentCountry.circle.on({
+    currentCountry[Symbol.for('circle')].on({
       mouseover: () => {
         this.map.closePopup();
         if (this.selectedCountry) {
-          this.geoJSONLayerGroup.resetStyle(this.selectedCountry.layer);
+          this.geoJSONLayerGroup.resetStyle(
+            this.selectedCountry[Symbol.for('layer')],
+          );
           this.selectedCountry = currentCountry;
         }
 
-        currentCountry.popup?.setLatLng(
+        currentCountry[Symbol.for('popup')]?.setLatLng(
           [currentCountry.latitude, currentCountry.longitude],
         ).openOn(this.map);
-        currentCountry.layer?.setStyle(this.settings.selectedFeatureStyle);
+        currentCountry[Symbol.for('layer')]?.setStyle(
+          this.settings.selectedFeatureStyle,
+        );
       },
       mouseout: () => {
         this.map.closePopup();
