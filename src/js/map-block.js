@@ -117,12 +117,11 @@ export default class MapBlock {
         && {}.hasOwnProperty.call(this.casesByCountry, props.alpha2Code)
       ) {
         const country = this.casesByCountry[props.alpha2Code];
+        country.layer = layer;
 
         const popup = L.popup();
         popup.setContent(this.getPopupContent(country));
-
-        country.layer = layer;
-        country.layer.bindPopup(popup);
+        country.popup = popup;
       }
     };
 
@@ -134,10 +133,12 @@ export default class MapBlock {
       },
     ).addTo(this.map);
 
-    this.geoJSONLayerGroup.on('click', (e) => {
-      if (e.layer.feature.properties.alpha2Code) {
-        this.selectCountryCallback(e.layer.feature.properties.alpha2Code);
-      }
+    this.geoJSONLayerGroup.on({
+      click: (e) => {
+        if (e.layer.feature.properties.alpha2Code) {
+          this.selectCountryCallback(e.layer.feature.properties.alpha2Code);
+        }
+      },
     });
 
     Object.values(this.casesByCountry).forEach((country) => {
@@ -148,7 +149,7 @@ export default class MapBlock {
   selectCountry(alpha2Code) {
     const country = this.casesByCountry[alpha2Code];
 
-    this.map.flyTo([country.latitude, country.longitude], 5);
+    this.map.flyTo([country.latitude, country.longitude]);
     // restore previous hidden circle
     if (this.selectedCountry) {
       this.addCircle(this.selectedCountry);
@@ -160,12 +161,12 @@ export default class MapBlock {
 
     this.selectedCountry = country;
     country.layer?.setStyle(this.settings.selectedFeatureStyle);
+
+    country.popup?.setLatLng([country.latitude, country.longitude]).openOn(this.map);
   }
 
   addCircle(country) {
     const radius = country[this.options.group][this.options.subGroup] / 10;
-    const popup = L.popup();
-    popup.setContent(this.getPopupContent(country));
 
     const currentCountry = country;
     currentCountry.circle = L.circle(
@@ -180,10 +181,21 @@ export default class MapBlock {
 
     currentCountry.circle.on({
       mouseover: (e) => {
-        popup.setLatLng(e.latlng).openOn(this.map);
+        this.map.closePopup();
+        if (this.selectedCountry) {
+          this.addCircle(this.selectedCountry);
+          this.geoJSONLayerGroup.resetStyle(this.selectedCountry.layer);
+          this.selectedCountry = undefined;
+        }
+        currentCountry.popup?.setLatLng(e.latlng).openOn(this.map);
       },
       mouseout: () => {
         this.map.closePopup();
+      },
+      click: () => {
+        if (currentCountry.alpha2Code) {
+          this.selectCountryCallback(currentCountry.alpha2Code);
+        }
       },
     });
   }
