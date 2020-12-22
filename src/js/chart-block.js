@@ -35,8 +35,8 @@ export default class ChartBlock {
     this.chartDataType = CHART_DATA_TYPES.confirmed;
     this.chartType = CHART_TYPES.lastDay;
     this.dataSource = null;
-    this.getObjByProperty = (obj, properyName, typeName) => Object.values(obj)
-      .filter((value) => value[properyName] === typeName)[0];
+    this.getObjByProperty = (obj, propertyName, typeName) => Object.values(obj)
+      .filter((value) => value[propertyName] === typeName)[0];
     this.$documentFragment = document.createDocumentFragment();
     this.$chartCanvas = document.createElement('canvas');
     this.$documentFragment.appendChild(this.$chartCanvas);
