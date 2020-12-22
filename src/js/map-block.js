@@ -78,7 +78,7 @@ export default class MapBlock {
         attribution: this.settings.tileLayerAttribution,
         maxZoom: 6,
         minZoom: 3,
-        id: 'mapbox/streets-v11',
+        id: 'mapbox/dark-v10',
         tileSize: 512,
         zoomOffset: -1,
         accessToken: this.settings.mapbox,
