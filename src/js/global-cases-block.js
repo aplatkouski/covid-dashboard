@@ -1,3 +1,5 @@
+import typeDescription from './type-description';
+
 export default class GlobalCasesBlock {
   constructor({
     globalCases,
@@ -11,7 +13,9 @@ export default class GlobalCasesBlock {
     this.globalCasesData = globalCases;
     this.options = options;
 
-    this.$mainContainer.innerHTML = `<h2>${
+    this.$mainContainer.innerHTML = `<h2 title="${
+      typeDescription[this.options.dataType][this.options.caseType]
+    }">${
       this.globalCasesData[this.options.dataType][this.options.caseType]
     }</h2>`;
   }
@@ -19,12 +23,18 @@ export default class GlobalCasesBlock {
   selectType({ dataType, caseType }) {
     this.options.dateType = dataType;
     this.options.caseType = caseType;
-    this.$mainContainer.innerHTML = `<h2>${
+    this.$mainContainer.innerHTML = `<h2 title="${
+      typeDescription[this.options.dataType][this.options.caseType]
+    }">${
       this.globalCasesData[this.options.dataType][this.options.caseType]
     }</h2>`;
   }
 
   render() {
-    this.$mainContainer.innerHTML = `<h2>${this.globalCasesData.total.confirmed}</h2>`;
+    this.$mainContainer.innerHTML = `<h2 title="${
+      typeDescription[this.options.dataType][this.options.caseType]
+    }">${
+      this.globalCasesData[this.options.dataType][this.options.caseType]
+    }</h2>`;
   }
 }
