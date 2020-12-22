@@ -181,8 +181,7 @@ export default class MapBlock {
 
     country[Symbol.for('popup')]?.setLatLng(
       [country.latitude, country.longitude],
-    )
-      .openOn(this.map);
+    ).openOn(this.map);
   }
 
   selectType({ dataType, caseType }) {
