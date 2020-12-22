@@ -124,6 +124,8 @@ export default class MapBlock {
         const country = this.casesByCountry[props.alpha2Code];
         country.layer = layer;
 
+        this.addCircle(country);
+
         const popup = L.popup();
         popup.setContent(this.getPopupContent(country));
         country.popup = popup;
@@ -139,15 +141,21 @@ export default class MapBlock {
     ).addTo(this.map);
 
     this.geoJSONLayerGroup.on({
+      mouseover: (e) => {
+        this.map.closePopup();
+        if (this.selectedCountry) {
+          this.geoJSONLayerGroup.resetStyle(this.selectedCountry.layer);
+        }
+        const country = this.casesByCountry[e.layer.feature.properties.alpha2Code];
+        this.selectedCountry = country;
+        country.popup?.setLatLng([country.latitude, country.longitude]).openOn(this.map);
+        country.layer?.setStyle(this.settings.selectedFeatureStyle);
+      },
       click: (e) => {
         if (e.layer.feature.properties.alpha2Code) {
           this.selectCountryCallback(e.layer.feature.properties.alpha2Code);
         }
       },
-    });
-
-    Object.values(this.casesByCountry).forEach((country) => {
-      this.addCircle(country);
     });
   }
 
@@ -157,12 +165,8 @@ export default class MapBlock {
     this.map.flyTo([country.latitude, country.longitude]);
     // restore previous hidden circle
     if (this.selectedCountry) {
-      this.addCircle(this.selectedCountry);
       this.geoJSONLayerGroup.resetStyle(this.selectedCountry.layer);
     }
-
-    this.map.removeLayer(country.circle);
-    country.circle = undefined;
 
     this.selectedCountry = country;
     country.layer?.setStyle(this.settings.selectedFeatureStyle);
@@ -186,14 +190,17 @@ export default class MapBlock {
     ).addTo(this.map);
 
     currentCountry.circle.on({
-      mouseover: (e) => {
+      mouseover: () => {
         this.map.closePopup();
         if (this.selectedCountry) {
-          this.addCircle(this.selectedCountry);
           this.geoJSONLayerGroup.resetStyle(this.selectedCountry.layer);
-          this.selectedCountry = undefined;
+          this.selectedCountry = currentCountry;
         }
-        currentCountry.popup?.setLatLng(e.latlng).openOn(this.map);
+
+        currentCountry.popup?.setLatLng(
+          [currentCountry.latitude, currentCountry.longitude],
+        ).openOn(this.map);
+        currentCountry.layer?.setStyle(this.settings.selectedFeatureStyle);
       },
       mouseout: () => {
         this.map.closePopup();
