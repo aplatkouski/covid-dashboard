@@ -23,7 +23,7 @@ function createSelectElement(optionsObj, defaultValue) {
   });
   return $select;
 }
-export default class CovidChart {
+export default class ChartBlock {
   constructor(
     $htmlContainer,
     casesByCountry,
