@@ -1,11 +1,32 @@
 import L from 'leaflet';
-import mapboxgl from 'mapbox-gl/dist/mapbox-gl';
-
-mapboxgl.accessToken = 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpeHlyOWZwMThtYjJxbXd2cHRwajIyNyJ9.jbgJSxSYgjaS_moNI_RLgw';
+import countryFeatureCollection from './countries-feature-colletion';
 
 const settings = {
-  mapbox: 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpeHlyOWZwMThtYjJxbXd2cHRwajIyNyJ9.jbgJSxSYgjaS_moNI_RLgw',
+  mapbox: 'pk.eyJ1IjoiYXBsYXRrb3Vza2kiLCJhIjoiY2tpemR0ZGJsMmdnMzJ4c2N5MnNiYm1tNCJ9.qj4V3FNrWCMNM58tR-iV8Q',
   defaultCountryAlpha2Code: 'BY',
+  flagIconCSSClass: 'flag-icon',
+  tileLayerAttribution: 'Map data &copy; <a'
+    + ' href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    + ' contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+  // eslint-disable-next-line no-unused-vars
+  featureStyle: {
+    color: 'white',
+    dashArray: '3',
+    fillColor: 'grey',
+    fillOpacity: 0,
+    opacity: 0,
+    weight: 1,
+  },
+  // eslint-disable-next-line no-unused-vars
+  selectedFeatureStyle: {
+    color: 'white',
+    dashArray: '3',
+    fillColor: 'grey',
+    stroke: true,
+    fillOpacity: 0.2,
+    opacity: 0.2,
+    weight: 2,
+  },
   lastDay: {
     confirmed: 'количество случаев заболевания за последний день в абсолютных величинах',
     deaths: 'количество летальных исходов за последний день в абсолютных величинах',
@@ -45,48 +66,121 @@ export default class MapBlock {
     this.selectCountryCallback = typeof selectCountryCallback === 'function'
       ? selectCountryCallback
       : () => {};
+    this.selectedCountry = undefined;
 
-    this.map = L.map('covid-map').setView(
-      [
-        this.casesByCountry[this.settings.defaultCountryAlpha2Code].latitude,
-        this.casesByCountry[this.settings.defaultCountryAlpha2Code].longitude],
-      5,
+    const defaultCountry = this.casesByCountry[this.settings.defaultCountryAlpha2Code];
+
+    this.map = L.map('covid-map').addLayer(
+      L.tileLayer(
+        'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
+        {
+          attribution: this.settings.tileLayerAttribution,
+          maxZoom: 6,
+          minZoom: 3,
+          id: 'mapbox/dark-v10',
+          tileSize: 512,
+          zoomOffset: -1,
+          accessToken: this.settings.mapbox,
+        },
+      ),
+    ).setView(
+      [defaultCountry.latitude, defaultCountry.longitude], 6,
     );
-    L.tileLayer(
-      'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
+    const southWest = L.latLng(-70, 170);
+    const northEast = L.latLng(85, -160);
+    this.map.setMaxBounds(L.latLngBounds(southWest, northEast));
+
+    this.getPopupContent = (country) => {
+      const covidStatisticsData = country[this.options.group][this.options.subGroup];
+      const popupMessage = this.settings[this.options.group][this.options.subGroup];
+
+      const $flagImage = document.createElement('img');
+      $flagImage.src = country.flagUrl;
+      $flagImage.alt = `${country.alpha2Code} flag`;
+      $flagImage.classList.add(this.settings.flagIconCSSClass);
+
+      const $h2 = document.createElement('h2');
+      $h2.appendChild($flagImage);
+      $h2.appendChild(document.createTextNode(country.name));
+      $h2.dataset.alpha2Code = country.alpha2Code;
+
+      const $p = document.createElement('p');
+      $p.appendChild(document.createTextNode(
+        `${covidStatisticsData} - ${popupMessage}`,
+      ));
+
+      const $container = document.createElement('div');
+      $container.appendChild($h2);
+      $container.appendChild($p);
+      return $container;
+    };
+
+    this.onEachFeature = (feature, layer) => {
+      const props = feature.properties;
+      if (
+        props.alpha2Code
+        && {}.hasOwnProperty.call(this.casesByCountry, props.alpha2Code)
+      ) {
+        const country = this.casesByCountry[props.alpha2Code];
+        country.layer = layer;
+
+        this.addCircle(country);
+
+        const popup = L.popup();
+        popup.setContent(this.getPopupContent(country));
+        country.popup = popup;
+      }
+    };
+
+    this.geoJSONLayerGroup = L.geoJson(
+      countryFeatureCollection,
       {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 18,
-        id: 'mapbox/streets-v11',
-        tileSize: 512,
-        zoomOffset: -1,
-        accessToken: this.settings.mapbox,
+        onEachFeature: this.onEachFeature,
+        style: this.settings.featureStyle,
       },
     ).addTo(this.map);
-    Object.keys(this.casesByCountry).forEach((key) => {
-      this.addCircle(this.casesByCountry[key]);
+
+    this.geoJSONLayerGroup.on({
+      mouseover: (e) => {
+        this.map.closePopup();
+        if (this.selectedCountry) {
+          this.geoJSONLayerGroup.resetStyle(this.selectedCountry.layer);
+        }
+        const country = this.casesByCountry[e.layer.feature.properties.alpha2Code];
+        this.selectedCountry = country;
+        country.popup?.setLatLng([country.latitude, country.longitude]).openOn(this.map);
+        country.layer?.setStyle(this.settings.selectedFeatureStyle);
+      },
+      click: (e) => {
+        if (e.layer.feature.properties.alpha2Code) {
+          this.selectCountryCallback(e.layer.feature.properties.alpha2Code);
+        }
+      },
     });
   }
 
   selectCountry(alpha2Code) {
-    this.map.setView(
-      [this.casesByCountry[alpha2Code].latitude, this.casesByCountry[alpha2Code].longitude],
-      5,
-    );
+    const country = this.casesByCountry[alpha2Code];
+
+    this.map.flyTo([country.latitude, country.longitude]);
+    // restore previous hidden circle
+    if (this.selectedCountry) {
+      this.geoJSONLayerGroup.resetStyle(this.selectedCountry.layer);
+    }
+
+    this.selectedCountry = country;
+    country.layer?.setStyle(this.settings.selectedFeatureStyle);
+
+    country.popup?.setLatLng([country.latitude, country.longitude])
+      .openOn(this.map);
   }
 
   addCircle(country) {
     const radius = country[this.options.group][this.options.subGroup] / 10;
-    const message = this.settings[this.options.group][this.options.subGroup];
-    const {
-      alpha2Code,
-      name,
-      latitude,
-      longitude,
-    } = country;
 
-    const circle = L.circle(
-      [latitude, longitude],
+    const currentCountry = country;
+    currentCountry.circle = L.circle(
+      [country.latitude, country.longitude],
       {
         color: 'red',
         fillColor: '#f03',
@@ -94,17 +188,28 @@ export default class MapBlock {
         radius,
       },
     ).addTo(this.map);
-    const popup = L.popup();
-    popup.setContent(`${name}\n${message}`);
-    circle.on('mouseover', (e) => {
-      popup.setLatLng(e.latlng).openOn(this.map);
-    });
-    circle.on('mouseout', () => {
-      this.map.closePopup();
-    });
 
-    circle.on('click', () => {
-      this.selectCountryCallback(alpha2Code);
+    currentCountry.circle.on({
+      mouseover: () => {
+        this.map.closePopup();
+        if (this.selectedCountry) {
+          this.geoJSONLayerGroup.resetStyle(this.selectedCountry.layer);
+          this.selectedCountry = currentCountry;
+        }
+
+        currentCountry.popup?.setLatLng(
+          [currentCountry.latitude, currentCountry.longitude],
+        ).openOn(this.map);
+        currentCountry.layer?.setStyle(this.settings.selectedFeatureStyle);
+      },
+      mouseout: () => {
+        this.map.closePopup();
+      },
+      click: () => {
+        if (currentCountry.alpha2Code) {
+          this.selectCountryCallback(currentCountry.alpha2Code);
+        }
+      },
     });
   }
 

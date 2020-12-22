@@ -38,6 +38,12 @@ h2 {
   background-color: var(--color-light-l);
 }
 
+p {
+  font: var(--paragraph-s);
+  font-size: 1rem;
+  color: var(--color-dark-3xl);
+}
+
 .main-container {
   position: relative;
   display: flex;
@@ -140,6 +146,12 @@ footer {
 
 .github-icon {
   width: 1.5rem;
+}
+
+.flag-icon {
+  width: 2rem;
+  margin: .1rem;
+  box-shadow: .1rem .1rem .25rem rgba(0, 0, 0, .4);
 }
 
 @media screen and (max-width: 26rem) {

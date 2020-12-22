@@ -1,5 +1,5 @@
 const settings = {
-  countriesAPI: 'https://restcountries.eu/rest/v2/all?fields=name;alpha2Code;population;latlng;flag',
+  countriesAPI: 'https://restcountries.eu/rest/v2/all?fields=name;alpha2Code;alpha3Code;population;latlng;flag',
   countriesStorageKey: 'cached-country-data',
   covidAPI: 'https://api.covid19api.com/summary',
   covidStorageKey: 'cached-covid-data',
@@ -8,6 +8,7 @@ const settings = {
   flagStyle: 'flat',
   comparativeRatio: 100000,
   precision: 100,
+  flagIconCSSClass: 'flag-icon',
 };
 
 export default class ApiGateway {
@@ -116,6 +117,7 @@ export default class ApiGateway {
       Object.keys(this[Symbol.for('countries')]).map(async (key) => {
         const country = this[Symbol.for('countries')][key];
         const $flagImage = document.createElement('img');
+        $flagImage.classList.add(this.settings.flagIconCSSClass);
         $flagImage.alt = `${key} flag`;
         Object.assign(country, { flagImage: $flagImage });
         return fetch(
@@ -140,6 +142,7 @@ export default class ApiGateway {
             const {
               name,
               alpha2Code,
+              alpha3Code,
               flag,
               latlng: [
                 latitude,
@@ -152,6 +155,7 @@ export default class ApiGateway {
               {
                 name,
                 alpha2Code: alpha2Code.toUpperCase(),
+                alpha3Code: alpha3Code.toUpperCase(),
                 flagUrl: flag,
                 latitude: +latitude,
                 longitude: +longitude,
