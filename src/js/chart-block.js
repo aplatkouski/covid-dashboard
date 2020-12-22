@@ -104,14 +104,19 @@ export default class ChartBlock {
     htmlContainer: $htmlContainer,
     casesByCountry,
     globalCases,
+    options = {
+      caseType: 'confirmed',
+      dataType: 'lastDay',
+    },
     selectCountryCallback,
   }) {
     this.settings = settings;
+    this.options = options;
     this.casesByCountry = casesByCountry;
     this.globalCases = globalCases;
     this.selectCountryCallback = selectCountryCallback;
-    this.chartDataType = this.settings.dataTypes.confirmed;
-    this.chartType = this.settings.chartTypes.lastDay;
+    this.chartDataType = this.settings.dataTypes[options.caseType];
+    this.chartType = this.settings.chartTypes[options.dataType];
     this.dataSource = null;
 
     this.getObjByProperty = (obj, propertyName, typeName) => Object.values(obj)
