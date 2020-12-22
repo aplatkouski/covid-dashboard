@@ -24,9 +24,9 @@ export default class ApiGateway {
       || {};
 
     ['lastDay', 'lastDayComparative', 'total', 'totalComparative'].forEach(
-      (group) => {
-        if (!{}.hasOwnProperty.call(this[Symbol.for('global')], group)) {
-          this[Symbol.for('global')][group] = {
+      (dataType) => {
+        if (!{}.hasOwnProperty.call(this[Symbol.for('global')], dataType)) {
+          this[Symbol.for('global')][dataType] = {
             confirmed: 0,
             deaths: 0,
             recovered: 0,
@@ -183,12 +183,12 @@ export default class ApiGateway {
   }
 
   reloadGlobalCovidData() {
-    ['lastDay', 'total'].forEach((group) => {
-      ['confirmed', 'deaths', 'recovered'].forEach((subGroup) => {
-        this[Symbol.for('global')][group][subGroup] = Object.values(
+    ['lastDay', 'total'].forEach((dataType) => {
+      ['confirmed', 'deaths', 'recovered'].forEach((caseType) => {
+        this[Symbol.for('global')][dataType][caseType] = Object.values(
           this[Symbol.for('countries')],
         )
-          .map((country) => country[group][subGroup])
+          .map((country) => country[dataType][caseType])
           .reduce((acc, cur) => acc + cur);
       });
     });
