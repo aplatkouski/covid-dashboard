@@ -69,22 +69,26 @@ export default class MapBlock {
     this.selectedCountry = undefined;
 
     const defaultCountry = this.casesByCountry[this.settings.defaultCountryAlpha2Code];
-    this.map = L.map('covid-map').setView(
+
+    this.map = L.map('covid-map').addLayer(
+      L.tileLayer(
+        'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
+        {
+          attribution: this.settings.tileLayerAttribution,
+          maxZoom: 6,
+          minZoom: 3,
+          id: 'mapbox/dark-v10',
+          tileSize: 512,
+          zoomOffset: -1,
+          accessToken: this.settings.mapbox,
+        },
+      ),
+    ).setView(
       [defaultCountry.latitude, defaultCountry.longitude], 6,
     );
-
-    L.tileLayer(
-      'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
-      {
-        attribution: this.settings.tileLayerAttribution,
-        maxZoom: 6,
-        minZoom: 3,
-        id: 'mapbox/dark-v10',
-        tileSize: 512,
-        zoomOffset: -1,
-        accessToken: this.settings.mapbox,
-      },
-    ).addTo(this.map);
+    const southWest = L.latLng(-70, 170);
+    const northEast = L.latLng(85, -160);
+    this.map.setMaxBounds(L.latLngBounds(southWest, northEast));
 
     this.getPopupContent = (country) => {
       const covidStatisticsData = country[this.options.group][this.options.subGroup];
@@ -163,7 +167,8 @@ export default class MapBlock {
     this.selectedCountry = country;
     country.layer?.setStyle(this.settings.selectedFeatureStyle);
 
-    country.popup?.setLatLng([country.latitude, country.longitude]).openOn(this.map);
+    country.popup?.setLatLng([country.latitude, country.longitude])
+      .openOn(this.map);
   }
 
   addCircle(country) {
