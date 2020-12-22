@@ -126,7 +126,6 @@ export default class MapBlock {
 
         country.layer = layer;
         country.layer.bindPopup(popup);
-        this.addCircle(country, popup);
       }
     };
 
@@ -143,6 +142,10 @@ export default class MapBlock {
         this.selectCountryCallback(e.layer.feature.properties.alpha2Code);
       }
     });
+
+    Object.values(this.casesByCountry).forEach((country) => {
+      this.addCircle(country);
+    });
   }
 
   selectCountry(alpha2Code) {
@@ -157,9 +160,7 @@ export default class MapBlock {
     );
     // restore previous hidden circle
     if (this.selectedCountry) {
-      const popup = L.popup();
-      popup.setContent(this.getPopupContent(this.selectedCountry));
-      this.addCircle(this.selectedCountry, popup);
+      this.addCircle(this.selectedCountry);
       this.geoJSONLayerGroup.resetStyle(this.selectedCountry.layer);
     }
 
@@ -170,8 +171,10 @@ export default class MapBlock {
     country.layer?.setStyle(this.settings.selectedFeatureStyle);
   }
 
-  addCircle(country, popup) {
+  addCircle(country) {
     const radius = country[this.options.group][this.options.subGroup] / 10;
+    const popup = L.popup();
+    popup.setContent(this.getPopupContent(country));
 
     const currentCountry = country;
     currentCountry.circle = L.circle(
@@ -184,11 +187,13 @@ export default class MapBlock {
       },
     ).addTo(this.map);
 
-    currentCountry.circle.on('mouseover', (e) => {
-      popup.setLatLng(e.latlng).openOn(this.map);
-    });
-    currentCountry.circle.on('mouseout', () => {
-      this.map.closePopup();
+    currentCountry.circle.on({
+      mouseover: (e) => {
+        popup.setLatLng(e.latlng).openOn(this.map);
+      },
+      mouseout: () => {
+        this.map.closePopup();
+      },
     });
   }
 
