@@ -68,12 +68,9 @@ export default class MapBlock {
       : () => {};
     this.selectedCountry = undefined;
 
+    const defaultCountry = this.casesByCountry[this.settings.defaultCountryAlpha2Code];
     this.map = L.map('covid-map').setView(
-      [
-        this.casesByCountry[this.settings.defaultCountryAlpha2Code].latitude,
-        this.casesByCountry[this.settings.defaultCountryAlpha2Code].longitude,
-      ],
-      6,
+      [defaultCountry.latitude, defaultCountry.longitude], 6,
     );
     L.tileLayer(
       'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
@@ -151,13 +148,7 @@ export default class MapBlock {
   selectCountry(alpha2Code) {
     const country = this.casesByCountry[alpha2Code];
 
-    this.map.flyTo(
-      [
-        this.casesByCountry[alpha2Code].latitude,
-        this.casesByCountry[alpha2Code].longitude,
-      ],
-      5,
-    );
+    this.map.flyTo([country.latitude, country.longitude], 5);
     // restore previous hidden circle
     if (this.selectedCountry) {
       this.addCircle(this.selectedCountry);
