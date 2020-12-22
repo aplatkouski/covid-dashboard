@@ -13,8 +13,7 @@ const CHART_TYPES = {
 };
 function createSelectElement(optionsObj, defaultValue) {
   const $select = document.createElement('select');
-  Object.entries(optionsObj).forEach((key) => {
-    const value = key[1];
+  Object.values(optionsObj).forEach((value) => {
     const $option = document.createElement('option');
     $option.textContent = value.type;
     $option.value = value.key;
