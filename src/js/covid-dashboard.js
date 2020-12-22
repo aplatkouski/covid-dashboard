@@ -2,6 +2,7 @@ import ApiGateway from './api-gateway';
 import GlobalCasesBlock from './global-cases-block';
 import MapBlock from './map-block';
 import ChartBlock from './chart-block';
+import ListBlock from './list-block';
 
 const settings = {
   mainContainerCSSClass: 'main-container',
@@ -86,7 +87,13 @@ export default class CovidDashboard {
         selectCountryCallback: this.selectCountry,
         selectTypeCallback: this.selectType,
       });
-      this.blocks.push(globalCasesBlock, mapBlock, chartBlock);
+      const listBlock = new ListBlock({
+        htmlContainer: this.$list,
+        casesByCountry: this.apiGateway.casesByCountry,
+        globalCases: this.apiGateway.globalCases,
+        selectCountryCallback: this.selectCountry,
+      });
+      this.blocks.push(globalCasesBlock, mapBlock, chartBlock, listBlock);
     });
 
     // auto-sync
