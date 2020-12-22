@@ -16,6 +16,14 @@ export default class GlobalCasesBlock {
     }</h2>`;
   }
 
+  selectType({ dataType, caseType }) {
+    this.options.dateType = dataType;
+    this.options.caseType = caseType;
+    this.$mainContainer.innerHTML = `<h2>${
+      this.globalCasesData[this.options.dataType][this.options.caseType]
+    }</h2>`;
+  }
+
   render() {
     this.$mainContainer.innerHTML = `<h2>${this.globalCasesData.total.confirmed}</h2>`;
   }
