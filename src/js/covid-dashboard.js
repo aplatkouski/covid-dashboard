@@ -70,12 +70,12 @@ export default class CovidDashboard {
         globalCases: this.apiGateway.globalCases,
         selectCountryCallback: this.selectCountry,
       });
-      const covidChart = new ChartBlock(
-        this.$chartBlock,
-        this.apiGateway.casesByCountry,
-        this.apiGateway.globalCases,
-        this.selectCountry,
-      );
+      const covidChart = new ChartBlock({
+        htmlContainer: this.$chartBlock,
+        casesByCountry: this.apiGateway.casesByCountry,
+        globalCases: this.apiGateway.globalCases,
+        selectCountryCallback: this.selectCountry,
+      });
       this.blocks.push(globalCasesBlock, mapBlock, covidChart);
     });
 

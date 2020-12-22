@@ -24,12 +24,12 @@ function createSelectElement(optionsObj, defaultValue) {
   return $select;
 }
 export default class ChartBlock {
-  constructor(
-    $htmlContainer,
+  constructor({
+    htmlContainer: $htmlContainer,
     casesByCountry,
     globalCases,
     selectCountryCallback,
-  ) {
+  }) {
     this.casesByCountry = casesByCountry;
     this.globalCases = globalCases;
     this.selectCountryCallback = selectCountryCallback;
