@@ -6,7 +6,7 @@ const settings = {
       type: 'confirmed',
       key: 'confirmed',
     },
-    deaths: { type: 'deaths', key: 'deaths', color: 'rgba(194, 54, 54, 1)' },
+    deaths: { type: 'deaths', key: 'deaths', },
     recovered: {
       type: 'recovered',
       key: 'recovered',
@@ -150,6 +150,7 @@ export default class ListBlock {
     const wrapper = createItem('div', 'list-wrapper');
     this.controlsWrapper = document.createElement('div');
     this.controlsWrapper.classList.add('control-wrapper');
+    this.controlsWrapper.classList.add('control-wrapper-list');
     this.$caseTypeSelector = createSelectElement(
       this.settings.caseTypes,
       this.currentCaseType.type,

@@ -87,6 +87,7 @@ p {
 	color: var(--color-dark-s);
 	font-size: 2rem;
 	text-transform: uppercase;
+
 }
 .table-block--controlsWrapper {
 	display: flex;
@@ -107,6 +108,33 @@ p {
 	font-size: 2rem;
 	text-align-last: center;
 }
+
+.table-block--controlsWrapper {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-bottom: 5%;
+}
+.table-block--controlsWrapper > label {
+	display: flex;
+	flex-direction: column;
+}
+.table-block--controlsWrapper select {
+	background-color: var(--color-dark-3xl);
+	outline: none;
+	color: var(--color-dark-s);
+	font-size: 2rem;
+	text-align-last: center;
+}
+
+.table-block  li {
+	list-style-type: none;
+
+	padding: 0.5rem ;
+	background-color: #545454;
+	border-bottom: var(--color-dark-3xl) 1rem solid;
 
 .table-block  li {
 	list-style-type: none;
@@ -247,29 +275,17 @@ footer {
   height: 100%;
 }
 
-.search-parameters {
-  height: 30%;
-  background-color: grey;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  border-bottom: 2px solid white;
-}
-
-.search-parameter {
-  padding: 5px;
-  margin: 5px;
-  border: 1px solid black;
-  text-align: center;
-  font-size: 10px;
-}
-
-.search-parameter-active {
-  color: red;
+.control-wrapper-list {
+    height: 5%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    background-color: grey;
+    border-bottom: 2px solid white;
 }
 
 .search-bar {
-  height: 5%;
+  height: 10%;
   border-bottom: 2px solid white;
   display: flex;
   justify-content: center;
@@ -283,7 +299,7 @@ footer {
 }
 
 .list {
-  height: 65%;
+  height: 85%;
   background-color: grey;
   display: flex;
   justify-content: center;
