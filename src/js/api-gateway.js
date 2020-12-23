@@ -36,15 +36,15 @@ export default class ApiGateway {
     );
   }
 
-  get isMoreThanHourSinceLastFetch() {
+  get isOutdated() {
     const ONE_HOUR_IN_MILLISECONDS = 36e5;
     return (!this[Symbol.for('date')]
-      || (Math.abs(Date.now() - this[Symbol.for('date')])
+      || (Date.now() - this[Symbol.for('date')]?.getTime()
         > ONE_HOUR_IN_MILLISECONDS));
   }
 
   fetchAndReloadAllData() {
-    if (!this.isMoreThanHourSinceLastFetch) {
+    if (!this.isOutdated) {
       return Promise.resolve();
     }
     return this.fetchCovidData()
@@ -58,21 +58,21 @@ export default class ApiGateway {
   }
 
   get casesByCountry() {
-    if (this.isMoreThanHourSinceLastFetch) {
+    if (this.isOutdated) {
       this.fetchAndReloadAllData();
     }
     return this[Symbol.for('countries')];
   }
 
   get lastUpdatedAtDate() {
-    if (this.isMoreThanHourSinceLastFetch) {
+    if (this.isOutdated) {
       this.fetchAndReloadAllData();
     }
     return this[Symbol.for('date')];
   }
 
   get globalCases() {
-    if (this.isMoreThanHourSinceLastFetch) {
+    if (this.isOutdated) {
       this.fetchAndReloadAllData();
     }
     return this[Symbol.for('global')];

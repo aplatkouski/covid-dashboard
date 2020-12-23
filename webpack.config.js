@@ -1,7 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
-const { SourceMapDevToolPlugin, HotModuleReplacementPlugin } = require(
+const { ProvidePlugin, SourceMapDevToolPlugin, HotModuleReplacementPlugin } = require(
   'webpack',
 );
 
@@ -41,6 +41,7 @@ module.exports = {
       filename: '[file].map',
     }),
     new HotModuleReplacementPlugin(),
+    new ProvidePlugin({ L: 'leaflet', 'window.L': 'leaflet' }),
   ],
   module: {
     rules: [
