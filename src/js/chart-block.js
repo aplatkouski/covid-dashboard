@@ -7,12 +7,14 @@ const settings = {
       datasets: [
         {
           label: 'aa',
-          borderDash: [5, 5],
-          showLine: true,
+          borderDash: [1, 1],
+          showLines: true,
+          pointRadius: 1,
+          pointHoverBackgroundColor: 'black',
           lineTension: 0,
           backgroundColor: 'transparent',
           borderColor: '',
-          borderWidth: 1,
+          borderWidth: 2,
           data: [
             {
               x: new Date('2020-10-01'),
