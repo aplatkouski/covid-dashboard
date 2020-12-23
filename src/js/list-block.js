@@ -131,6 +131,9 @@ function createListItems(arr, param) {
   const listItems = createItem('ul', 'list-items');
   for (let i = 0; i < arr.length; i += 1) {
     const listItem = createListItem(arr[i].name, arr[i][param], arr[i].flagUrl);
+    if (arr[i].name.length > 30) {
+      listItem.classList.add('list-item-big');
+    }
     listItems.append(listItem);
   }
   return listItems;
