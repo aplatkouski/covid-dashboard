@@ -1,53 +1,27 @@
-const searchParametersArr = [
-  {
-    text: 'Total Cases',
-    id: 'total-cases',
-  },
-  {
-    text: 'Total Deaths',
-    id: 'total-deaths',
-  },
-  {
-    text: 'Total Recovered',
-    id: 'total-recovered',
-  },
-  {
-    text: 'Today Cases',
-    id: 'today-cases',
-  },
-  {
-    text: 'Today Deaths',
-    id: 'today-deaths',
-  },
-  {
-    text: 'Today Recovered',
-    id: 'today-recovered',
-  },
-  {
-    text: 'Total Cases per 100k',
-    id: 'total-cases-100',
-  },
-  {
-    text: 'Total Deaths per 100k',
-    id: 'total-deaths-100',
-  },
-  {
-    text: 'Total Recovered per 100k',
-    id: 'total-recovered-100',
-  },
+import createSelectElement from './tools';
 
-  {
-    text: 'Today Cases per 100k',
-    id: 'today-cases-100',
+const settings = {
+  caseTypes: {
+    confirmed: {
+      type: 'confirmed',
+      key: 'confirmed',
+    },
+    deaths: { type: 'deaths', key: 'deaths', color: 'rgba(194, 54, 54, 1)' },
+    recovered: {
+      type: 'recovered',
+      key: 'recovered',
+    },
   },
-  {
-    text: 'Today Deaths per 100k',
-    id: 'today-deaths-100',
+  dataTypes: {
+    lastDay: { type: 'last day cases', key: 'lastDay' },
+    lastDayComparative: {
+      type: 'last day cases per 100k',
+      key: 'lastDayComparative',
+    },
+    total: { type: 'total cases', key: 'total' },
+    totalComparative: { type: 'total cases per 100k', key: 'totalComparative' },
   },
-  {
-    text: 'Today Recovered per 100k',
-    id: 'today-recovered-100',
-  }];
+};
 
 function createItem(type, className, text) {
   const element = document.createElement(type);
@@ -62,33 +36,24 @@ function createArr(a) {
   for (let i = 0; i < arrFromObj.length; i += 1) {
     const countryObj = {
       name: arrFromObj[i].name,
-      'total-cases': arrFromObj[i].total.confirmed,
-      'total-deaths': arrFromObj[i].total.deaths,
-      'total-recovered': arrFromObj[i].total.recovered,
-      'today-cases': arrFromObj[i].lastDay.confirmed,
-      'today-deaths': arrFromObj[i].lastDay.deaths,
-      'today-recovered': arrFromObj[i].lastDay.recovered,
-      'total-cases-100': arrFromObj[i].totalComparative.confirmed,
-      'total-deaths-100': arrFromObj[i].totalComparative.deaths,
-      'total-recovered-100': arrFromObj[i].totalComparative.recovered,
-      'today-cases-100': arrFromObj[i].lastDayComparative.confirmed,
-      'today-deaths-100': arrFromObj[i].lastDayComparative.deaths,
-      'today-recovered-100': arrFromObj[i].lastDayComparative.recovered,
+      'confirmed-total': arrFromObj[i].total.confirmed,
+      'deaths-total': arrFromObj[i].total.deaths,
+      'recovered-total': arrFromObj[i].total.recovered,
+      'confirmed-lastDay': arrFromObj[i].lastDay.confirmed,
+      'deaths-lastDay': arrFromObj[i].lastDay.deaths,
+      'recovered-lastDay': arrFromObj[i].lastDay.recovered,
+      'confirmed-totalComparative': arrFromObj[i].totalComparative.confirmed,
+      'deaths-totalComparative': arrFromObj[i].totalComparative.deaths,
+      'recovered-totalComparative': arrFromObj[i].totalComparative.recovered,
+      'confirmed-lastDayComparative': arrFromObj[i].lastDayComparative.confirmed,
+      'deaths-lastDayComparative': arrFromObj[i].lastDayComparative.deaths,
+      'recovered-lastDayComparative': arrFromObj[i].lastDayComparative.recovered,
       alpha2Code: arrFromObj[i].alpha2Code,
       flagUrl: arrFromObj[i].flagUrl,
     };
     res.push(countryObj);
   }
   return res;
-}
-
-function adjustSearchParameters(param) {
-  const searchParameters = document.querySelectorAll('.search-parameter');
-  searchParameters.forEach((item) => {
-    item.classList.remove('search-parameter-active');
-  });
-  const activeSearchParameter = document.getElementById(param);
-  activeSearchParameter.classList.add('search-parameter-active');
 }
 
 function createListItem(country, number, flag) {
@@ -143,39 +108,50 @@ function sortArr(arr, param) {
   return arr.sort((a, b) => (a[param] < b[param] ? 1 : -1));
 }
 
-function changeList(e) {
+function changeList(param) {
   const listToRemove = document.querySelector('.list-items');
   if (listToRemove) {
     listToRemove.remove();
   }
   const obj = JSON.parse(localStorage.getItem('countries'));
   const arr = createArr(obj);
-  const { id } = e.target;
-  const currentArr = sortArr(arr, id);
-  adjustSearchParameters(id);
-  const listItems = createListItems(currentArr, id);
+  const currentArr = sortArr(arr, param);
+  const listItems = createListItems(currentArr, param);
   const list = document.querySelector('.list');
   list.append(listItems);
 }
-
-function createSearchParameters() {
-  const searchParameters = createItem('div', 'search-parameters');
-  for (let i = 0; i < searchParametersArr.length; i += 1) {
-    const item = createItem('div', 'search-parameter', `${searchParametersArr[i].text}`);
-    item.id = `${searchParametersArr[i].id}`;
-    item.addEventListener('click', changeList);
-    searchParameters.append(item);
-  }
-  return searchParameters;
-}
+//
+// function createSearchParameters() {
+//   const searchParameters = createItem('div', 'search-parameters');
+//   for (let i = 0; i < searchParametersArr.length; i += 1) {
+//     const item = createItem('div', 'search-parameter', `${searchParametersArr[i].text}`);
+//     item.id = `${searchParametersArr[i].id}`;
+//     item.addEventListener('click', changeList);
+//     searchParameters.append(item);
+//   }
+//   return searchParameters;
+// }
 
 export default class ListBlock {
   constructor({
     casesByCountry,
     htmlContainer: $mainContainer,
+    options = {
+      caseType: 'confirmed',
+      dataType: 'lastDay',
+    },
+    selectTypeCallback,
   }) {
+    this.settings = settings;
+    this.options = options;
+    this.casesByCountry = casesByCountry;
+    this.currentCaseType = this.settings.caseTypes[options.caseType];
+    this.currentDataType = this.settings.dataTypes[options.dataType];
     this.$mainContainer = $mainContainer;
     this.casesByCountry = casesByCountry;
+    this.options = options;
+    this.settings = settings;
+    this.selectTypeCallback = selectTypeCallback;
     this.arr = createArr(this.casesByCountry);
     const listWrapper = this.createListWrapper();
     this.$mainContainer.append(listWrapper);
@@ -183,15 +159,46 @@ export default class ListBlock {
 
   createListWrapper() {
     const wrapper = createItem('div', 'list-wrapper');
-    const searchParameters = createSearchParameters();
+    // const searchParameters = createSearchParameters();
+    this.controlsWrapper = document.createElement('div');
+    this.controlsWrapper.classList.add('control-wrapper');
+    this.$caseTypeSelector = createSelectElement(
+      this.settings.caseTypes,
+      this.currentCaseType.type,
+    );
+    // this.$caseTypeSelector.addEventListener(
+    //   'change',
+    //   (e) => this.eventHandler(e),
+    // );
+    //
+    this.$dataTypeSelector = createSelectElement(
+      this.settings.dataTypes,
+      this.currentDataType.type,
+    );
+    // this.$dataTypeSelector.addEventListener(
+    //   'change',
+    //   (e) => this.eventHandler(e),
+    // );
+
+    this.updateButton = document.createElement('button');
+    this.updateButton.innerText = 'Update Chart';
+    this.updateButton.addEventListener(
+      'click', (e) => this.eventHandler(e),
+    );
+    this.controlsWrapper.append(this.$caseTypeSelector, this.$dataTypeSelector, this.updateButton);
     const searchBar = createSearchBar();
     const list = createItem('div', 'list');
     const currentArr = sortArr(this.arr, 'total-cases');
-    const listItems = createListItems(currentArr, 'total-cases');
+    const listItems = createListItems(currentArr, 'confirmed-total');
     list.append(listItems);
-    wrapper.append(searchParameters, searchBar, list);
+    wrapper.append(this.controlsWrapper, searchBar, list);
     document.body.append(wrapper);
-    adjustSearchParameters('total-cases');
+    // adjustSearchParameters('total-cases');
     return wrapper;
+  }
+
+  eventHandler() {
+    const parameter = `${this.$caseTypeSelector.value}-${this.$dataTypeSelector.value}`;
+    changeList(parameter);
   }
 }
