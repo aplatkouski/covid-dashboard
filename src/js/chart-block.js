@@ -1,4 +1,7 @@
 import Chart from 'chart.js';
+import {
+  getObjByProperty, createSelectElement, setLabel, /* setOptionsSelected , */
+} from './tools';
 
 const settings = {
   chartOptions: {
@@ -117,26 +120,6 @@ const settings = {
   worldPopulation: 7856691739, // TODO get population by API
   precision: 100000,
 };
-
-function createSelectElement(optionsObj, defaultValue) {
-  const $select = document.createElement('select');
-  Object.values(optionsObj).forEach((value) => {
-    const $option = document.createElement('option');
-    $option.textContent = value.type;
-    $option.value = value.key;
-    $option.selected = (defaultValue === value.type);
-    $select.appendChild($option);
-  });
-  return $select;
-}
-
-function setLabel($FormElement, labelText) {
-  const $label = document.createElement('label');
-  $label.innerText = labelText;
-  $label.appendChild($FormElement);
-  return $label;
-}
-
 export default class ChartBlock {
   constructor({
     htmlContainer: $htmlContainer,
@@ -158,9 +141,6 @@ export default class ChartBlock {
     this.currentCaseType = this.settings.caseTypes[options.caseType];
     this.currentDataType = this.settings.dataTypes[options.dataType];
     this.dataSource = null;
-
-    this.getObjByProperty = (obj, propertyName, typeName) => Object.values(obj)
-      .filter((value) => value[propertyName] === typeName)[0];
 
     this.chartWrapper = document.createElement('div');
     this.chartWrapper.classList.add(this.settings.CSSClass.chartWrapper);
@@ -207,7 +187,7 @@ export default class ChartBlock {
   }
 
   set setcurrentCaseType(caseType) {
-    this.currentCaseType = this.getObjByProperty(
+    this.currentCaseType = getObjByProperty(
       this.settings.caseTypes, 'key', caseType,
     );
     this.options.caseType = caseType;
@@ -215,7 +195,7 @@ export default class ChartBlock {
   }
 
   set setcurrentDataType(dataType) {
-    this.currentDataType = this.getObjByProperty(
+    this.currentDataType = getObjByProperty(
       this.settings.dataTypes, 'key', dataType,
     );
     this.options.dataType = dataType;
