@@ -1,6 +1,6 @@
 import Chart from 'chart.js';
 import {
-  getObjByProperty, createSelectElement, setLabel, /* setOptionsSelected , */
+  getObjByProperty, createSelectElement, setLabel, setOptionsSelected,
 } from './tools';
 
 const settings = {
@@ -187,19 +187,28 @@ export default class ChartBlock {
   }
 
   set setcurrentCaseType(caseType) {
-    this.currentCaseType = getObjByProperty(
-      this.settings.caseTypes, 'key', caseType,
-    );
     this.options.caseType = caseType;
-    this.selectTypeCallback(this.options);
   }
 
   set setcurrentDataType(dataType) {
+    this.options.dataType = dataType;
+  }
+
+  selectType({ dataType, caseType }) {
     this.currentDataType = getObjByProperty(
       this.settings.dataTypes, 'key', dataType,
     );
+
+    this.currentCaseType = getObjByProperty(
+      this.settings.caseTypes, 'key', caseType,
+    );
+
+    setOptionsSelected(dataType, this.$dataTypeSelector);
+    setOptionsSelected(caseType, this.$caseTypeSelector);
+
     this.options.dataType = dataType;
-    this.selectTypeCallback(this.options);
+    this.options.caseType = caseType;
+    this.render();
   }
 
   eventHandler(e) {
@@ -208,7 +217,7 @@ export default class ChartBlock {
     } else if (e.target === this.$dataTypeSelector) {
       this.setcurrentDataType = e.target.value;
     } else if (e.target === this.updateButton) {
-      this.render();
+      this.selectTypeCallback(this.options);
     }
   }
 
