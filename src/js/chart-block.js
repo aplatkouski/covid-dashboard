@@ -251,16 +251,67 @@ export default class ChartBlock {
     }
   }
 
+  async getPopulation(isGlobal) {
+    const responsePopulation = await fetch('https://restcountries.eu/rest/v2/all?fields=alpha2Code;population');
+    const datapopulation = await responsePopulation.json();
+    let population = 0;
+
+    if (isGlobal) {
+      population = datapopulation.reduce((acc, value) => acc + value.population, 0);
+    } else {
+      // eslint-disable-next-line prefer-destructuring
+      population = datapopulation
+        .filter((country) => country.alpha2Code === this.dataSource)[0].population;
+    }
+    let i = 0;
+    while (i < 10000) {
+      i += 1;
+    }
+    console.log(population);
+    return population;
+  }
+
   async calcGlobalChart(isLastDayMode, isPer100kMode) {
     const response = await fetch(this.settings.API.globalStatistics);
     if (response.ok) {
+      const gloPop = await this.getPopulation(true);
+      console.log('check');
       const data = await response.json();
       this.globalCases = data;
       this.globalCases.data.forEach((oneDataDay) => {
         this.settings.chartOptions.data.datasets[0].data
           .push({
             x: new Date(oneDataDay.date),
-            y: oneDataDay[`${(isLastDayMode ? 'new_' : '')}${this.currentCaseType.key}`] * (isPer100kMode ? this.settings.precision / this.settings.worldPopulation : 1),
+            y: oneDataDay[`${(isLastDayMode ? 'new_' : '')}${this.currentCaseType.key}`] * (isPer100kMode ? this.settings.precision / gloPop : 1),
+          });
+      });
+      return Promise.resolve(true);
+    }
+    return Promise.reject(response.status);
+  }
+
+  async calcChartByCountry(isLastDayMode, isPer100kMode) {
+    const responseCountries = await fetch('https://api.covid19api.com/countries');
+    const dataCountries = await responseCountries.json();
+    const slug = dataCountries.filter((country) => country.ISO2 === this.dataSource)[0].Slug;
+
+    const response = await fetch(`https://api.covid19api.com/country/${slug}/status/${this.currentCaseType.key}`);
+    if (response.ok) {
+      const data = await response.json();
+      this.casesByCountry = data;
+      const popuation = await this.getPopulation(false);
+      this.casesByCountry.forEach(async (oneDataDay, index, array) => {
+        console.log(index);
+        let valueForChart = (isLastDayMode
+          ? (oneDataDay.Cases - (index > 0 ? array[index - 1].Cases : 0))
+          : oneDataDay.Cases);
+        if (isPer100kMode) {
+          valueForChart *= this.settings.precision / popuation;
+        }
+        this.settings.chartOptions.data.datasets[0].data
+          .push({
+            x: new Date(oneDataDay.Date),
+            y: valueForChart,
           });
       });
       return Promise.resolve(true);
@@ -272,6 +323,7 @@ export default class ChartBlock {
     // this.setcurrentCaseType = 'deaths';
     // this.setcurrentDataType = 'last day cases per 100k';
     // this.dataSource = null;
+    let result;
     this.settings.chartOptions.data.datasets[0].label = `${this.currentCaseType.type}: ${this.currentDataType.type}`;
     this.settings.chartOptions.data.datasets[0].data = [];
     this.settings.chartOptions.data.labels = [];
@@ -282,17 +334,15 @@ export default class ChartBlock {
     const isPer100kMode = (this.currentDataType === this.settings.dataTypes.totalComparative
       || this.currentDataType === this.settings.dataTypes.lastDayComparative);
     if (this.dataSource === null) {
-      // this.fillTestPoints(this.globalCases);
-      await this.calcGlobalChart(isLastDayMode, isPer100kMode);
+      result = await this.calcGlobalChart(isLastDayMode, isPer100kMode);
     } else {
-      const dataByCountry = this.getObjByProperty(this.casesByCountry,
-        'alpha2Code', this.dataSource);
-      this.fillTestPoints(dataByCountry);
+      result = await this.calcChartByCountry(isLastDayMode, isPer100kMode);
     }
+    return result;
   }
 
   async render() {
     await this.updateDataSet();
-    this.myChart.update();
+    await this.myChart.update();
   }
 }
