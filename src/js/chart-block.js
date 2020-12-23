@@ -56,7 +56,7 @@ const settings = {
             },
             scaleLabel: {
               display: true,
-              labelString: 'Month of year',
+              labelString: 'Month of the year',
               fontColor: 'black',
             },
             ticks: {
