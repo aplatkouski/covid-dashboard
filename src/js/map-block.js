@@ -5,10 +5,17 @@ import typeDescription from './type-description';
 const settings = {
   defaultCountryAlpha2Code: 'BY',
   flagIconCSSClass: 'flag-icon',
+  chunkColors: [
+    '#008000',
+    '#00f',
+    '#ff0',
+    '#ffa500',
+    '#f00',
+  ],
   mapOptions: {
     attribution: 'Map data &copy; <a'
-    + ' href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    + ' contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      + ' href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      + ' contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 5,
     minZoom: 2,
     id: 'mapbox/dark-v10',
@@ -59,7 +66,8 @@ export default class MapBlock {
       : () => {};
     this.selectedCountry = undefined;
     this.maxValues = {};
-    this.assignMaxValues();
+    this.chunks = {};
+    this.assignMaxValuesAndColor();
 
     const defaultCountry = this.casesByCountry[this.settings.defaultCountryAlpha2Code];
 
@@ -155,7 +163,7 @@ export default class MapBlock {
     });
   }
 
-  assignMaxValues() {
+  assignMaxValuesAndColor() {
     ['lastDay', 'lastDayComparative', 'total', 'totalComparative'].forEach(
       (dataType) => {
         if (!this.maxValues[dataType]) {
@@ -166,9 +174,42 @@ export default class MapBlock {
             ...Object.values(this.casesByCountry)
               .map((country) => country[dataType][caseType]),
           );
+          this.chunkCountries({ dataType, caseType });
         });
       },
     );
+  }
+
+  chunkCountries({ dataType, caseType }) {
+    const countryArray = Object.values(this.casesByCountry);
+    countryArray.sort((a, b) => a[dataType][caseType] - b[dataType][caseType]);
+    const chunkSize = Math.ceil(
+      countryArray.length / this.settings.chunkColors.length,
+    );
+
+    if (!this.chunks[dataType]) this.chunks[dataType] = {};
+    for (let i = 0; i < countryArray.length; i += chunkSize) {
+      const countries = countryArray.slice(i, i + chunkSize);
+      const values = countries.map((country) => country[dataType][caseType]);
+      if (!this.chunks[dataType][caseType]) this.chunks[dataType][caseType] = [];
+      const chunkNum = i / chunkSize;
+      const color = this.settings.chunkColors[chunkNum];
+      this.chunks[dataType][caseType].push({
+        num: chunkNum,
+        color,
+        countries,
+        min: Math.min(...values),
+        max: Math.max(...values),
+      });
+      countries.forEach((country) => {
+        const a = country;
+        if (!a[Symbol.for('color')]) a[Symbol.for('color')] = {};
+        if (!a[Symbol.for('color')][dataType]) {
+          a[Symbol.for('color')][dataType] = {};
+        }
+        a[Symbol.for('color')][dataType][caseType] = color;
+      });
+    }
   }
 
   selectCountry(alpha2Code) {
@@ -214,23 +255,23 @@ export default class MapBlock {
   }
 
   addCircle(country) {
-    const value = country[this.options.dataType][this.options.caseType];
+    const { dataType, caseType } = this.options;
+    const value = country[dataType][caseType];
     const radius = value
-      ? (this.settings.calculationRadius.base ** (
-        country[this.options.dataType][this.options.caseType]
-        / this.maxValues[this.options.dataType][this.options.caseType]
-      ) * (
+      ? (this.settings.calculationRadius.base ** (country[dataType][caseType]
+        / this.maxValues[dataType][caseType]) * (
         this.settings.calculationRadius.max
         / this.settings.calculationRadius.base
       ))
       : this.settings.calculationRadius.min;
 
     const currentCountry = country;
+    const color = country[Symbol.for('color')][dataType][caseType];
     currentCountry[Symbol.for('circle')] = L.circle(
       [country.latitude, country.longitude],
       {
-        color: 'red',
-        fillColor: '#f03',
+        color,
+        fillColor: color,
         fillOpacity: 0.5,
         radius,
       },
