@@ -1,4 +1,4 @@
-import createSelectElement from './tools';
+import { createSelectElement } from './tools';
 
 const settings = {
   caseTypes: {
@@ -13,13 +13,13 @@ const settings = {
     },
   },
   dataTypes: {
+    total: { type: 'total cases', key: 'total' },
+    totalComparative: { type: 'total cases per 100k', key: 'totalComparative' },
     lastDay: { type: 'last day cases', key: 'lastDay' },
     lastDayComparative: {
       type: 'last day cases per 100k',
       key: 'lastDayComparative',
     },
-    total: { type: 'total cases', key: 'total' },
-    totalComparative: { type: 'total cases per 100k', key: 'totalComparative' },
   },
 };
 
@@ -120,17 +120,6 @@ function changeList(param) {
   const list = document.querySelector('.list');
   list.append(listItems);
 }
-//
-// function createSearchParameters() {
-//   const searchParameters = createItem('div', 'search-parameters');
-//   for (let i = 0; i < searchParametersArr.length; i += 1) {
-//     const item = createItem('div', 'search-parameter', `${searchParametersArr[i].text}`);
-//     item.id = `${searchParametersArr[i].id}`;
-//     item.addEventListener('click', changeList);
-//     searchParameters.append(item);
-//   }
-//   return searchParameters;
-// }
 
 export default class ListBlock {
   constructor({
@@ -138,7 +127,7 @@ export default class ListBlock {
     htmlContainer: $mainContainer,
     options = {
       caseType: 'confirmed',
-      dataType: 'lastDay',
+      dataType: 'total',
     },
     selectTypeCallback,
   }) {
@@ -159,41 +148,30 @@ export default class ListBlock {
 
   createListWrapper() {
     const wrapper = createItem('div', 'list-wrapper');
-    // const searchParameters = createSearchParameters();
     this.controlsWrapper = document.createElement('div');
     this.controlsWrapper.classList.add('control-wrapper');
     this.$caseTypeSelector = createSelectElement(
       this.settings.caseTypes,
       this.currentCaseType.type,
     );
-    // this.$caseTypeSelector.addEventListener(
-    //   'change',
-    //   (e) => this.eventHandler(e),
-    // );
-    //
     this.$dataTypeSelector = createSelectElement(
       this.settings.dataTypes,
       this.currentDataType.type,
     );
-    // this.$dataTypeSelector.addEventListener(
-    //   'change',
-    //   (e) => this.eventHandler(e),
-    // );
 
     this.updateButton = document.createElement('button');
-    this.updateButton.innerText = 'Update Chart';
+    this.updateButton.innerText = 'Update List';
     this.updateButton.addEventListener(
       'click', (e) => this.eventHandler(e),
     );
     this.controlsWrapper.append(this.$caseTypeSelector, this.$dataTypeSelector, this.updateButton);
     const searchBar = createSearchBar();
     const list = createItem('div', 'list');
-    const currentArr = sortArr(this.arr, 'total-cases');
+    const currentArr = sortArr(this.arr, 'confirmed-total');
     const listItems = createListItems(currentArr, 'confirmed-total');
     list.append(listItems);
     wrapper.append(this.controlsWrapper, searchBar, list);
     document.body.append(wrapper);
-    // adjustSearchParameters('total-cases');
     return wrapper;
   }
 
