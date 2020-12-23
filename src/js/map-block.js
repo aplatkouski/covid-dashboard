@@ -1,4 +1,6 @@
 import L from 'leaflet';
+import '../plugins/leaflet.legend';
+import '../plugins/leaflet.legend.css';
 import countryFeatureCollection from './countries-feature-colletion';
 import typeDescription from './type-description';
 
@@ -162,6 +164,35 @@ export default class MapBlock {
         if (props.alpha2Code) this.selectCountryCallback(props.alpha2Code);
       },
     });
+
+    this.legend = L.control.Legend({
+      position: 'bottomleft',
+      collapsed: false,
+      symbolWidth: 24,
+      opacity: 1,
+      column: 2,
+      legends: this.legends,
+    }).addTo(this.map);
+  }
+
+  get legends() {
+    return this.chunks[this.options.dataType][this.options.caseType]
+      .map((chunk) => {
+        const layers = chunk.countries.map(
+          (country) => country[Symbol.for('circle')],
+        ).filter((a) => a);
+        return {
+          label: `${chunk.num + 1}. ${chunk.min} - ${chunk.max};`,
+          type: 'circle',
+          radius: 6,
+          color: chunk.color,
+          fillColor: chunk.color,
+          fillOpacity: 0.5,
+          weight: 2,
+          layers,
+          inactive: false,
+        };
+      });
   }
 
   assignMaxValuesAndColor() {
@@ -195,7 +226,8 @@ export default class MapBlock {
       if (!this.chunks[dataType][caseType]) this.chunks[dataType][caseType] = [];
       const chunkNum = i / chunkSize;
       const color = caseType === this.settings.caseWithReversedChunkColor
-        ? this.settings.chunkColors[this.settings.chunkColors.length - chunkNum - 1]
+        ? this.settings.chunkColors[this.settings.chunkColors.length
+        - chunkNum - 1]
         : this.settings.chunkColors[chunkNum];
       this.chunks[dataType][caseType].push({
         num: chunkNum,
@@ -255,6 +287,16 @@ export default class MapBlock {
         this.addCircle(country);
       }
     });
+
+    this.map.removeControl(this.legend);
+    this.legend = L.control.Legend({
+      position: 'bottomleft',
+      collapsed: false,
+      symbolWidth: 24,
+      opacity: 1,
+      column: 2,
+      legends: this.legends,
+    }).addTo(this.map);
   }
 
   addCircle(country) {
