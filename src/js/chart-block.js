@@ -4,17 +4,30 @@ const settings = {
   chartOptions: {
     type: 'line',
     data: {
-      labels: [],
+      // label: 'a',
       datasets: [
         {
-          label: '',
+          label: 'aa',
           borderDash: [5, 5],
           showLine: true,
           lineTension: 0,
-          data: [],
           backgroundColor: 'transparent',
           borderColor: '',
-          borderWidth: 3,
+          borderWidth: 1,
+          data: [
+            {
+              x: new Date('2020-10-01'),
+              y: 1,
+            },
+            {
+              x: new Date('2020-12-03'),
+              y: 0.5,
+            },
+            {
+              x: new Date('2020-12-04'),
+              y: 0.75,
+            },
+          ],
         },
       ],
     },
@@ -30,6 +43,12 @@ const settings = {
       scales: {
         xAxes: [
           {
+            type: 'time',
+            time: {
+              unit: 'month',
+              // format: '',
+              // tooltipFormat: 'll',
+            },
             gridLines: {
               color: 'black',
               borderDash: [1, 2],
@@ -37,8 +56,12 @@ const settings = {
             },
             scaleLabel: {
               display: true,
-              labelString: 'Date',
+              labelString: 'Month of year',
               fontColor: 'black',
+            },
+            ticks: {
+              beginAtZero: true,
+              // stepSize: 50000,
             },
           },
         ],
@@ -56,7 +79,7 @@ const settings = {
             },
             ticks: {
               beginAtZero: true,
-              stepSize: 50000,
+              // stepSize: 50000,
             },
           },
         ],
@@ -89,7 +112,12 @@ const settings = {
     chartWrapper: 'chart-block--chartWrapper',
     controlsWrapper: 'chart-block--controlsWrapper',
   },
-
+  API: {
+    globalStatistics: 'https://corona-api.com/timeline',
+    countryStatistics: '',
+  },
+  worldPopulation: 7856691739, // TODO get population by API
+  precision: 100000,
 };
 
 function createSelectElement(optionsObj, defaultValue) {
@@ -214,16 +242,33 @@ export default class ChartBlock {
     this.render();
   }
 
-  fillTestPoints(source) {
-    for (let i = 1; i < 5; i += 1) {
-      this.settings.chartOptions.data.datasets[0].data
-        .push(source[this.currentDataType.key][this.currentCaseType.key]
-          * (i === 1 ? 1 : Math.random()));
-      this.settings.chartOptions.data.labels.push(`${i}.12.2020`);
+  fillTestPoints() {
+    for (let i = 1; i < 10; i += 1) {
+      // this.settings.chartOptions.data.datasets[0].data
+      //   .push(source[this.currentDataType.key][this.currentCaseType.key]
+      //     * );
+      this.settings.chartOptions.data.datasets[0].data.push({ x: new Date(`'2020-0${i}-05'`), y: (i === 1 ? 1 : Math.random()) });
     }
   }
 
-  updateDataSet() {
+  async calcGlobalChart(isLastDayMode, isPer100kMode) {
+    const response = await fetch(this.settings.API.globalStatistics);
+    if (response.ok) {
+      const data = await response.json();
+      this.globalCases = data;
+      this.globalCases.data.forEach((oneDataDay) => {
+        this.settings.chartOptions.data.datasets[0].data
+          .push({
+            x: new Date(oneDataDay.date),
+            y: oneDataDay[`${(isLastDayMode ? 'new_' : '')}${this.currentCaseType.key}`] * (isPer100kMode ? this.settings.precision / this.settings.worldPopulation : 1),
+          });
+      });
+      return Promise.resolve(true);
+    }
+    return Promise.reject(response.status);
+  }
+
+  async updateDataSet() {
     // this.setcurrentCaseType = 'deaths';
     // this.setcurrentDataType = 'last day cases per 100k';
     // this.dataSource = null;
@@ -231,8 +276,14 @@ export default class ChartBlock {
     this.settings.chartOptions.data.datasets[0].data = [];
     this.settings.chartOptions.data.labels = [];
     this.settings.chartOptions.data.datasets[0].borderColor = this.currentCaseType.color;
+    const isLastDayMode = (
+      this.currentDataType === this.settings.dataTypes.lastDay
+      || this.currentDataType === this.settings.dataTypes.lastDayComparative);
+    const isPer100kMode = (this.currentDataType === this.settings.dataTypes.totalComparative
+      || this.currentDataType === this.settings.dataTypes.lastDayComparative);
     if (this.dataSource === null) {
-      this.fillTestPoints(this.globalCases);
+      // this.fillTestPoints(this.globalCases);
+      await this.calcGlobalChart(isLastDayMode, isPer100kMode);
     } else {
       const dataByCountry = this.getObjByProperty(this.casesByCountry,
         'alpha2Code', this.dataSource);
@@ -242,6 +293,6 @@ export default class ChartBlock {
 
   async render() {
     await this.updateDataSet();
-    await this.myChart.update();
+    this.myChart.update();
   }
 }
