@@ -41,7 +41,7 @@ const settings = {
         position: 'top',
         labels: {
           boxWidth: 0,
-          fontColor: 'black',
+          fontColor: '#cdcdcd',
         },
       },
       scales: {
@@ -58,11 +58,12 @@ const settings = {
             },
             scaleLabel: {
               display: true,
-              labelString: 'Month of the year',
-              fontColor: 'black',
+              labelString: '' /* 'Month of the year'.toUpperCase() */,
+              fontColor: '#cdcdcd',
             },
             ticks: {
               beginAtZero: true,
+              fontColor: '#cdcdcd',
             },
           },
         ],
@@ -75,11 +76,12 @@ const settings = {
             },
             scaleLabel: {
               display: true,
-              labelString: 'Number of cases',
-              fontColor: 'black',
+              labelString: 'cases'.toUpperCase(),
+              fontColor: '#cdcdcd',
             },
             ticks: {
               beginAtZero: true,
+              fontColor: '#cdcdcd',
             },
           },
         ],
@@ -293,7 +295,7 @@ export default class ChartBlock {
 
   async updateDataSet() {
     let result;
-    this.settings.chartOptions.data.datasets[0].label = `${this.currentCaseType.type}: ${this.currentDataType.type}`;
+    this.settings.chartOptions.data.datasets[0].label = `${this.currentCaseType.type}: ${this.currentDataType.type}`.toUpperCase();
     this.settings.chartOptions.data.datasets[0].data = [];
     this.settings.chartOptions.data.labels = [];
     this.settings.chartOptions.data.datasets[0].borderColor = this.currentCaseType.color;
