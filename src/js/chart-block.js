@@ -4,17 +4,31 @@ const settings = {
   chartOptions: {
     type: 'line',
     data: {
-      labels: [],
       datasets: [
         {
-          label: '',
-          borderDash: [5, 5],
-          showLine: true,
+          label: 'aa',
+          borderDash: [1, 1],
+          showLines: true,
+          pointRadius: 1,
+          pointHoverBackgroundColor: 'black',
           lineTension: 0,
-          data: [],
           backgroundColor: 'transparent',
           borderColor: '',
-          borderWidth: 3,
+          borderWidth: 2,
+          data: [
+            {
+              x: new Date('2020-10-01'),
+              y: 1,
+            },
+            {
+              x: new Date('2020-12-03'),
+              y: 0.5,
+            },
+            {
+              x: new Date('2020-12-04'),
+              y: 0.75,
+            },
+          ],
         },
       ],
     },
@@ -30,6 +44,10 @@ const settings = {
       scales: {
         xAxes: [
           {
+            type: 'time',
+            time: {
+              unit: 'month',
+            },
             gridLines: {
               color: 'black',
               borderDash: [1, 2],
@@ -37,8 +55,11 @@ const settings = {
             },
             scaleLabel: {
               display: true,
-              labelString: 'Date',
+              labelString: 'Month of the year',
               fontColor: 'black',
+            },
+            ticks: {
+              beginAtZero: true,
             },
           },
         ],
@@ -56,7 +77,6 @@ const settings = {
             },
             ticks: {
               beginAtZero: true,
-              stepSize: 50000,
             },
           },
         ],
@@ -85,6 +105,17 @@ const settings = {
     total: { type: 'total cases', key: 'total' },
     totalComparative: { type: 'total cases per 100k', key: 'totalComparative' },
   },
+  CSSClass: {
+    chartWrapper: 'chart-block--chartWrapper',
+    controlsWrapper: 'chart-block--controlsWrapper',
+  },
+  API: {
+    globalStatistics: 'https://corona-api.com/timeline',
+    countrySlug: 'https://api.covid19api.com/countries',
+    population: 'https://restcountries.eu/rest/v2/all?fields=alpha2Code;population',
+  },
+  worldPopulation: 7856691739, // TODO get population by API
+  precision: 100000,
 };
 
 function createSelectElement(optionsObj, defaultValue) {
@@ -97,6 +128,13 @@ function createSelectElement(optionsObj, defaultValue) {
     $select.appendChild($option);
   });
   return $select;
+}
+
+function setLabel($FormElement, labelText) {
+  const $label = document.createElement('label');
+  $label.innerText = labelText;
+  $label.appendChild($FormElement);
+  return $label;
 }
 
 export default class ChartBlock {
@@ -124,8 +162,12 @@ export default class ChartBlock {
     this.getObjByProperty = (obj, propertyName, typeName) => Object.values(obj)
       .filter((value) => value[propertyName] === typeName)[0];
 
+    this.chartWrapper = document.createElement('div');
+    this.chartWrapper.classList.add(this.settings.CSSClass.chartWrapper);
     this.$chartCanvas = document.createElement('canvas');
 
+    this.controlsWrapper = document.createElement('div');
+    this.controlsWrapper.classList.add(this.settings.CSSClass.controlsWrapper);
     this.$caseTypeSelector = createSelectElement(
       this.settings.caseTypes,
       this.currentCaseType.type,
@@ -144,18 +186,24 @@ export default class ChartBlock {
       (e) => this.eventHandler(e),
     );
 
+    this.updateButton = document.createElement('button');
+    this.updateButton.innerText = 'Update Chart';
+    this.updateButton.addEventListener(
+      'click', (e) => this.eventHandler(e),
+    );
+
     this.$documentFragment = document.createDocumentFragment();
-    this.$documentFragment.appendChild(this.$chartCanvas);
-    this.$documentFragment.appendChild(this.$caseTypeSelector);
-    this.$documentFragment.appendChild(this.$dataTypeSelector);
+    this.$documentFragment.appendChild(this.chartWrapper);
+    this.chartWrapper.appendChild(this.$chartCanvas);
+    this.$documentFragment.appendChild(this.controlsWrapper);
+    this.controlsWrapper.appendChild(setLabel(this.$caseTypeSelector, 'Case types:'));
+    this.controlsWrapper.appendChild(setLabel(this.$dataTypeSelector, 'Data types:'));
+    this.controlsWrapper.appendChild(this.updateButton);
     $htmlContainer.appendChild(this.$documentFragment);
 
     this.$chart = this.$chartCanvas.getContext('2d');
     this.myChart = new Chart(this.$chart, this.settings.chartOptions);
     this.render();
-    // setTimeout(() => {
-    //   this.updateDataSet();
-    // }, 5000);
   }
 
   set setcurrentCaseType(caseType) {
@@ -177,11 +225,11 @@ export default class ChartBlock {
   eventHandler(e) {
     if (e.target === this.$caseTypeSelector) {
       this.setcurrentCaseType = e.target.value;
-    }
-    if (e.target === this.$dataTypeSelector) {
+    } else if (e.target === this.$dataTypeSelector) {
       this.setcurrentDataType = e.target.value;
+    } else if (e.target === this.updateButton) {
+      this.render();
     }
-    this.render();
   }
 
   selectCountry(newDataSource) {
@@ -189,30 +237,88 @@ export default class ChartBlock {
     this.render();
   }
 
-  fillTestPoints(source) {
-    for (let i = 1; i < 5; i += 1) {
-      this.settings.chartOptions.data.datasets[0].data
-        .push(source[this.currentDataType.key][this.currentCaseType.key]
-          * (i === 1 ? 1 : Math.random()));
-      this.settings.chartOptions.data.labels.push(`${i}.12.2020`);
+  async getPopulation(isGlobal) {
+    const responsePopulation = await fetch(this.settings.API.population);
+    const datapopulation = await responsePopulation.json();
+    let population = 0;
+
+    if (isGlobal) {
+      population = datapopulation.reduce((acc, value) => acc + value.population, 0);
+    } else {
+      // eslint-disable-next-line prefer-destructuring
+      population = datapopulation
+        .filter((country) => country.alpha2Code === this.dataSource)[0].population;
     }
+    let i = 0;
+    while (i < 10000) {
+      i += 1;
+    }
+    return population;
   }
 
-  updateDataSet() {
-    // this.setcurrentCaseType = 'deaths';
-    // this.setcurrentDataType = 'last day cases per 100k';
-    // this.dataSource = null;
+  async calcGlobalChart(isLastDayMode, isPer100kMode) {
+    const response = await fetch(this.settings.API.globalStatistics);
+    if (response.ok) {
+      const gloPop = await this.getPopulation(true);
+      const data = await response.json();
+      this.globalCases = data;
+      this.globalCases.data.forEach((oneDataDay) => {
+        this.settings.chartOptions.data.datasets[0].data
+          .push({
+            x: new Date(oneDataDay.date),
+            y: oneDataDay[`${(isLastDayMode ? 'new_' : '')}${this.currentCaseType.key}`] * (isPer100kMode ? this.settings.precision / gloPop : 1),
+          });
+      });
+      return Promise.resolve(true);
+    }
+    return Promise.reject(response.status);
+  }
+
+  async calcChartByCountry(isLastDayMode, isPer100kMode) {
+    const responseCountries = await fetch(this.settings.API.countrySlug);
+    const dataCountries = await responseCountries.json();
+    const slug = dataCountries.filter((country) => country.ISO2 === this.dataSource)[0].Slug;
+
+    const response = await fetch(`https://api.covid19api.com/country/${slug}/status/${this.currentCaseType.key}`);
+    if (response.ok) {
+      const data = await response.json();
+      this.casesByCountry = data;
+      const popuation = await this.getPopulation(false);
+      this.casesByCountry.forEach(async (oneDataDay, index, array) => {
+        let valueForChart = (isLastDayMode
+          ? (oneDataDay.Cases - (index > 0 ? array[index - 1].Cases : 0))
+          : oneDataDay.Cases);
+        if (isPer100kMode) {
+          valueForChart *= this.settings.precision / popuation;
+        }
+        this.settings.chartOptions.data.datasets[0].data
+          .push({
+            x: new Date(oneDataDay.Date),
+            y: valueForChart,
+          });
+      });
+      return Promise.resolve(true);
+    }
+    return Promise.reject(response.status);
+  }
+
+  async updateDataSet() {
+    let result;
     this.settings.chartOptions.data.datasets[0].label = `${this.currentCaseType.type}: ${this.currentDataType.type}`;
     this.settings.chartOptions.data.datasets[0].data = [];
     this.settings.chartOptions.data.labels = [];
     this.settings.chartOptions.data.datasets[0].borderColor = this.currentCaseType.color;
+    const isLastDayMode = (
+      this.currentDataType === this.settings.dataTypes.lastDay
+      || this.currentDataType === this.settings.dataTypes.lastDayComparative);
+    const isPer100kMode = (this.currentDataType === this.settings.dataTypes.totalComparative
+      || this.currentDataType === this.settings.dataTypes.lastDayComparative);
     if (this.dataSource === null) {
-      this.fillTestPoints(this.globalCases);
+      result = await this.calcGlobalChart(isLastDayMode, isPer100kMode);
     } else {
-      const dataByCountry = this.getObjByProperty(this.casesByCountry,
-        'alpha2Code', this.dataSource);
-      this.fillTestPoints(dataByCountry);
+      result = await this.calcChartByCountry(isLastDayMode, isPer100kMode);
     }
+    return result;
   }
 
   async render() {

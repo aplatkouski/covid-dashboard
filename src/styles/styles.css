@@ -76,6 +76,19 @@ p {
   background-color: rgba(0, 139, 139, .5);
 }
 
+.chart-block--controlsWrapper {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: flex-end;
+	flex-wrap: wrap;
+}
+.chart-block--controlsWrapper > label{
+	display: flex;
+	flex-direction: column;
+}
+
+
 .global-cases-block {
   height: 12%;
   background-color: rgba(139, 139, 0, .5);
