@@ -36,7 +36,7 @@ const settings = {
   },
   CSSClass: {
     tableWrapper: '',
-    controlsWrapper: 'chart-block--controlsWrapper',
+    controlsWrapper: 'table-block--controlsWrapper',
   },
 };
 // TODO функции ниже перенести в разделяемый с chart-block модуль
@@ -145,7 +145,7 @@ export default class TableBlock {
     }
 
     const $UL = document.createElement('ul');
-    $UL.textContent = `${this.currentDataType.type}`;
+    // $UL.textContent = `${this.currentDataType.type}`;
     const dataSource = (this.dataSource === null ? this.globalCases : getObjByProperty(this.casesByCountry, 'alpha2Code', this.dataSource));
 
     Object.values(this.settings.caseTypes).forEach((value) => {
