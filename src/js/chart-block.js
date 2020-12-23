@@ -250,6 +250,7 @@ export default class ChartBlock {
   async calcGlobalChart(isLastDayMode, isPer100kMode) {
     const response = await fetch(this.settings.API.globalStatistics);
     if (response.ok) {
+      this.settings.chartOptions.data.datasets[0].label = 'Worldwide coronavirus status'.toUpperCase();
       const gloPop = await this.getPopulation(true);
       const data = await response.json();
       this.globalCases = data;
@@ -272,6 +273,7 @@ export default class ChartBlock {
 
     const response = await fetch(`https://api.covid19api.com/country/${slug}/status/${this.currentCaseType.key}`);
     if (response.ok) {
+      this.settings.chartOptions.data.datasets[0].label = `${slug} coronavirus status`.toUpperCase();
       const data = await response.json();
       this.casesByCountry = data;
       const popuation = await this.getPopulation(false);
@@ -295,7 +297,6 @@ export default class ChartBlock {
 
   async updateDataSet() {
     let result;
-    this.settings.chartOptions.data.datasets[0].label = `${this.currentCaseType.type}: ${this.currentDataType.type}`.toUpperCase();
     this.settings.chartOptions.data.datasets[0].data = [];
     this.settings.chartOptions.data.labels = [];
     this.settings.chartOptions.data.datasets[0].borderColor = this.currentCaseType.color;
