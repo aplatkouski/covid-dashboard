@@ -12,6 +12,7 @@ const settings = {
     '#ffa500',
     '#f00',
   ],
+  caseWithReversedChunkColor: 'recovered',
   mapOptions: {
     attribution: 'Map data &copy; <a'
       + ' href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -193,7 +194,9 @@ export default class MapBlock {
       const values = countries.map((country) => country[dataType][caseType]);
       if (!this.chunks[dataType][caseType]) this.chunks[dataType][caseType] = [];
       const chunkNum = i / chunkSize;
-      const color = this.settings.chunkColors[chunkNum];
+      const color = caseType === this.settings.caseWithReversedChunkColor
+        ? this.settings.chunkColors[this.settings.chunkColors.length - chunkNum - 1]
+        : this.settings.chunkColors[chunkNum];
       this.chunks[dataType][caseType].push({
         num: chunkNum,
         color,
