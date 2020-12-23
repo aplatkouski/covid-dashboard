@@ -87,6 +87,7 @@ p {
 	color: var(--color-dark-s);
 	font-size: 2rem;
 	text-transform: uppercase;
+
 }
 .table-block--controlsWrapper {
 	display: flex;
@@ -107,6 +108,33 @@ p {
 	font-size: 2rem;
 	text-align-last: center;
 }
+
+.table-block--controlsWrapper {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-bottom: 5%;
+}
+.table-block--controlsWrapper > label {
+	display: flex;
+	flex-direction: column;
+}
+.table-block--controlsWrapper select {
+	background-color: var(--color-dark-3xl);
+	outline: none;
+	color: var(--color-dark-s);
+	font-size: 2rem;
+	text-align-last: center;
+}
+
+.table-block  li {
+	list-style-type: none;
+
+	padding: 0.5rem ;
+	background-color: #545454;
+	border-bottom: var(--color-dark-3xl) 1rem solid;
 
 .table-block  li {
 	list-style-type: none;

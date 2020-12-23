@@ -2,6 +2,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { ProvidePlugin } = require('webpack');
 const path = require('path');
 
 module.exports = {
@@ -44,6 +45,7 @@ module.exports = {
         ],
       },
     ),
+    new ProvidePlugin({ L: 'leaflet', 'window.L': 'leaflet' }),
   ],
   module: {
     rules: [

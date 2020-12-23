@@ -1,14 +1,24 @@
 import L from 'leaflet';
+import '../plugins/leaflet.legend';
+import '../plugins/leaflet.legend.css';
 import countryFeatureCollection from './countries-feature-colletion';
 import typeDescription from './type-description';
 
 const settings = {
   defaultCountryAlpha2Code: 'BY',
   flagIconCSSClass: 'flag-icon',
+  chunkColors: [
+    '#008000',
+    '#00f',
+    '#ff0',
+    '#ffa500',
+    '#f00',
+  ],
+  caseWithReversedChunkColor: 'recovered',
   mapOptions: {
     attribution: 'Map data &copy; <a'
-    + ' href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    + ' contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      + ' href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      + ' contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 5,
     minZoom: 2,
     id: 'mapbox/dark-v10',
@@ -33,7 +43,7 @@ const settings = {
     opacity: 0.2,
     weight: 2,
   },
-  calculationRadius: {
+  radius: {
     min: 10000,
     max: 400000,
     base: 4,
@@ -59,7 +69,9 @@ export default class MapBlock {
       : () => {};
     this.selectedCountry = undefined;
     this.maxValues = {};
-    this.assignMaxValues();
+    this.chunks = {};
+    this.layerGroups = {};
+    this.assignMaxValuesAndColor();
 
     const defaultCountry = this.casesByCountry[this.settings.defaultCountryAlpha2Code];
 
@@ -84,10 +96,10 @@ export default class MapBlock {
       $flagImage.alt = `${country.alpha2Code || 'country'} flag`;
       $flagImage.classList.add(this.settings.flagIconCSSClass);
 
-      const $h2 = document.createElement('h2');
-      $h2.appendChild($flagImage);
-      $h2.appendChild(document.createTextNode(country.name));
-      $h2.dataset.alpha2Code = country.alpha2Code;
+      const $h3 = document.createElement('h3');
+      $h3.appendChild($flagImage);
+      $h3.appendChild(document.createTextNode(country.name));
+      $h3.dataset.alpha2Code = country.alpha2Code;
 
       const $p = document.createElement('p');
       $p.appendChild(document.createTextNode(
@@ -95,7 +107,7 @@ export default class MapBlock {
       ));
 
       const $container = document.createElement('div');
-      $container.appendChild($h2);
+      $container.appendChild($h3);
       $container.appendChild($p);
       return $container;
     };
@@ -153,9 +165,38 @@ export default class MapBlock {
         if (props.alpha2Code) this.selectCountryCallback(props.alpha2Code);
       },
     });
+
+    this.legend = L.control.Legend({
+      position: 'bottomleft',
+      collapsed: false,
+      symbolWidth: 24,
+      opacity: 1,
+      column: 2,
+      legends: this.legends,
+    }).addTo(this.map);
   }
 
-  assignMaxValues() {
+  get legends() {
+    return this.chunks[this.options.dataType][this.options.caseType]
+      .map((chunk) => {
+        const layers = chunk.countries.map(
+          (country) => country[Symbol.for('circle')],
+        ).filter((a) => a);
+        return {
+          label: `${chunk.num + 1}. ${chunk.min} - ${chunk.max};`,
+          type: 'circle',
+          radius: 6,
+          color: chunk.color,
+          fillColor: chunk.color,
+          fillOpacity: 0.5,
+          weight: 2,
+          layers,
+          inactive: false,
+        };
+      });
+  }
+
+  assignMaxValuesAndColor() {
     ['lastDay', 'lastDayComparative', 'total', 'totalComparative'].forEach(
       (dataType) => {
         if (!this.maxValues[dataType]) {
@@ -166,9 +207,45 @@ export default class MapBlock {
             ...Object.values(this.casesByCountry)
               .map((country) => country[dataType][caseType]),
           );
+          this.chunkCountries({ dataType, caseType });
         });
       },
     );
+  }
+
+  chunkCountries({ dataType, caseType }) {
+    const countryArray = Object.values(this.casesByCountry);
+    countryArray.sort((a, b) => a[dataType][caseType] - b[dataType][caseType]);
+    const chunkSize = Math.ceil(
+      countryArray.length / this.settings.chunkColors.length,
+    );
+
+    if (!this.chunks[dataType]) this.chunks[dataType] = {};
+    for (let i = 0; i < countryArray.length; i += chunkSize) {
+      const countries = countryArray.slice(i, i + chunkSize);
+      const values = countries.map((country) => country[dataType][caseType]);
+      if (!this.chunks[dataType][caseType]) this.chunks[dataType][caseType] = [];
+      const chunkNum = i / chunkSize;
+      const color = caseType === this.settings.caseWithReversedChunkColor
+        ? this.settings.chunkColors[this.settings.chunkColors.length
+        - chunkNum - 1]
+        : this.settings.chunkColors[chunkNum];
+      this.chunks[dataType][caseType].push({
+        num: chunkNum,
+        color,
+        countries,
+        min: Math.min(...values),
+        max: Math.max(...values),
+      });
+      countries.forEach((country) => {
+        const a = country;
+        if (!a[Symbol.for('color')]) a[Symbol.for('color')] = {};
+        if (!a[Symbol.for('color')][dataType]) {
+          a[Symbol.for('color')][dataType] = {};
+        }
+        a[Symbol.for('color')][dataType][caseType] = color;
+      });
+    }
   }
 
   selectCountry(alpha2Code) {
@@ -211,26 +288,40 @@ export default class MapBlock {
         this.addCircle(country);
       }
     });
+
+    this.map.removeControl(this.legend);
+    this.legend = L.control.Legend({
+      position: 'bottomleft',
+      collapsed: false,
+      symbolWidth: 24,
+      opacity: 1,
+      column: 2,
+      legends: this.legends,
+    }).addTo(this.map);
+  }
+
+  getRadius(value, { dataType, caseType }) {
+    return value
+      ? (this.settings.radius.base
+        ** (value / this.maxValues[dataType][caseType])
+        * (this.settings.radius.max / this.settings.radius.base))
+      : this.settings.radius.min;
   }
 
   addCircle(country) {
-    const value = country[this.options.dataType][this.options.caseType];
-    const radius = value
-      ? (this.settings.calculationRadius.base ** (
-        country[this.options.dataType][this.options.caseType]
-        / this.maxValues[this.options.dataType][this.options.caseType]
-      ) * (
-        this.settings.calculationRadius.max
-        / this.settings.calculationRadius.base
-      ))
-      : this.settings.calculationRadius.min;
+    const { dataType, caseType } = this.options;
+    const radius = this.getRadius(
+      country[dataType][caseType],
+      { dataType, caseType },
+    );
 
     const currentCountry = country;
+    const color = country[Symbol.for('color')][dataType][caseType];
     currentCountry[Symbol.for('circle')] = L.circle(
       [country.latitude, country.longitude],
       {
-        color: 'red',
-        fillColor: '#f03',
+        color,
+        fillColor: color,
         fillOpacity: 0.5,
         radius,
       },
