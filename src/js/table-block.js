@@ -1,3 +1,7 @@
+import {
+  getObjByProperty, createSelectElement, setLabel, setOptionsSelected,
+} from './tools';
+
 const settings = {
   caseTypes: {
     confirmed: {
@@ -39,39 +43,6 @@ const settings = {
     controlsWrapper: 'table-block--controlsWrapper',
   },
 };
-// TODO функции ниже перенести в разделяемый с chart-block модуль
-
-function getObjByProperty(obj, propertyName, typeName) {
-  return Object.values(obj).filter((value) => value[propertyName] === typeName)[0];
-}
-
-function createSelectElement(optionsObj, defaultValue) {
-  const $select = document.createElement('select');
-  Object.values(optionsObj).forEach((value) => {
-    const $option = document.createElement('option');
-    $option.textContent = value.type;
-    $option.value = value.key;
-    $option.selected = (defaultValue === value.type);
-    $select.appendChild($option);
-  });
-  return $select;
-}
-
-function setLabel($FormElement, labelText) {
-  const $label = document.createElement('label');
-  $label.innerText = labelText;
-  $label.appendChild($FormElement);
-  return $label;
-}
-
-function setOptionsSelected(newValue, $Select) {
-  const newSelectedElement = [].filter.call($Select.childNodes,
-    (option) => option.value === newValue);
-  if (!newSelectedElement[0].selected) {
-    newSelectedElement[0].selected = true;
-  }
-}
-
 export default class TableBlock {
   constructor({
     htmlContainer: $htmlContainer,
