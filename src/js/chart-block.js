@@ -1,4 +1,7 @@
 import Chart from 'chart.js';
+import {
+  getObjByProperty, createSelectElement, setLabel, setOptionsSelected,
+} from './tools';
 
 const settings = {
   chartOptions: {
@@ -38,7 +41,7 @@ const settings = {
         position: 'top',
         labels: {
           boxWidth: 0,
-          fontColor: 'black',
+          fontColor: '#cdcdcd',
         },
       },
       scales: {
@@ -55,11 +58,12 @@ const settings = {
             },
             scaleLabel: {
               display: true,
-              labelString: 'Month of the year',
-              fontColor: 'black',
+              labelString: '' /* 'Month of the year'.toUpperCase() */,
+              fontColor: '#cdcdcd',
             },
             ticks: {
               beginAtZero: true,
+              fontColor: '#cdcdcd',
             },
           },
         ],
@@ -72,11 +76,12 @@ const settings = {
             },
             scaleLabel: {
               display: true,
-              labelString: 'Number of cases',
-              fontColor: 'black',
+              labelString: 'cases'.toUpperCase(),
+              fontColor: '#cdcdcd',
             },
             ticks: {
               beginAtZero: true,
+              fontColor: '#cdcdcd',
             },
           },
         ],
@@ -117,26 +122,6 @@ const settings = {
   worldPopulation: 7856691739, // TODO get population by API
   precision: 100000,
 };
-
-function createSelectElement(optionsObj, defaultValue) {
-  const $select = document.createElement('select');
-  Object.values(optionsObj).forEach((value) => {
-    const $option = document.createElement('option');
-    $option.textContent = value.type;
-    $option.value = value.key;
-    $option.selected = (defaultValue === value.type);
-    $select.appendChild($option);
-  });
-  return $select;
-}
-
-function setLabel($FormElement, labelText) {
-  const $label = document.createElement('label');
-  $label.innerText = labelText;
-  $label.appendChild($FormElement);
-  return $label;
-}
-
 export default class ChartBlock {
   constructor({
     htmlContainer: $htmlContainer,
@@ -158,9 +143,6 @@ export default class ChartBlock {
     this.currentCaseType = this.settings.caseTypes[options.caseType];
     this.currentDataType = this.settings.dataTypes[options.dataType];
     this.dataSource = null;
-
-    this.getObjByProperty = (obj, propertyName, typeName) => Object.values(obj)
-      .filter((value) => value[propertyName] === typeName)[0];
 
     this.chartWrapper = document.createElement('div');
     this.chartWrapper.classList.add(this.settings.CSSClass.chartWrapper);
@@ -207,19 +189,28 @@ export default class ChartBlock {
   }
 
   set setcurrentCaseType(caseType) {
-    this.currentCaseType = this.getObjByProperty(
-      this.settings.caseTypes, 'key', caseType,
-    );
     this.options.caseType = caseType;
-    this.selectTypeCallback(this.options);
   }
 
   set setcurrentDataType(dataType) {
-    this.currentDataType = this.getObjByProperty(
+    this.options.dataType = dataType;
+  }
+
+  selectType({ dataType, caseType }) {
+    this.currentDataType = getObjByProperty(
       this.settings.dataTypes, 'key', dataType,
     );
+
+    this.currentCaseType = getObjByProperty(
+      this.settings.caseTypes, 'key', caseType,
+    );
+
+    setOptionsSelected(dataType, this.$dataTypeSelector);
+    setOptionsSelected(caseType, this.$caseTypeSelector);
+
     this.options.dataType = dataType;
-    this.selectTypeCallback(this.options);
+    this.options.caseType = caseType;
+    this.render();
   }
 
   eventHandler(e) {
@@ -228,7 +219,7 @@ export default class ChartBlock {
     } else if (e.target === this.$dataTypeSelector) {
       this.setcurrentDataType = e.target.value;
     } else if (e.target === this.updateButton) {
-      this.render();
+      this.selectTypeCallback(this.options);
     }
   }
 
@@ -304,7 +295,7 @@ export default class ChartBlock {
 
   async updateDataSet() {
     let result;
-    this.settings.chartOptions.data.datasets[0].label = `${this.currentCaseType.type}: ${this.currentDataType.type}`;
+    this.settings.chartOptions.data.datasets[0].label = `${this.currentCaseType.type}: ${this.currentDataType.type}`.toUpperCase();
     this.settings.chartOptions.data.datasets[0].data = [];
     this.settings.chartOptions.data.labels = [];
     this.settings.chartOptions.data.datasets[0].borderColor = this.currentCaseType.color;
