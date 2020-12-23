@@ -17,9 +17,7 @@ class GeometricSymbol extends LegendSymbol {
     super(control, container, legend);
 
     this.canvas = this.buildCanvas();
-    if (this.drawSymbol) {
-      this.drawSymbol();
-    }
+    if (this.drawSymbol) this.drawSymbol();
     this.style();
   }
 
@@ -43,9 +41,7 @@ class GeometricSymbol extends LegendSymbol {
     }
 
     if (this.legend.stroke || this.legend.color) {
-      if (this.legend.dashArray) {
-        ctx.setLineDash(this.legend.dashArray || []);
-      }
+      if (this.legend.dashArray) ctx.setLineDash(this.legend.dashArray || []);
       ctx.globalAlpha = this.legend.opacity || 1.0;
       ctx.lineWidth = this.legend.weight || 2;
       ctx.strokeStyle = this.legend.color || '#38f';
@@ -68,11 +64,11 @@ class CircleSymbol extends GeometricSymbol {
     const ctx = (this.ctx = this.canvas.getContext('2d'));
 
     const { legend } = this;
-    const linelWeight = legend.weight || 3;
+    const lineWeight = legend.weight || 3;
 
     const centerX = this.control.options.symbolWidth / 2;
     const centerY = this.control.options.symbolHeight / 2;
-    const maxRadius = Math.min(centerX, centerY) - linelWeight;
+    const maxRadius = Math.min(centerX, centerY) - lineWeight;
     let radius = maxRadius;
     if (legend.radius) {
       radius = Math.min(legend.radius, maxRadius);
@@ -140,8 +136,7 @@ L.Control.Legend = L.Control.extend({
     const legendItemDiv = L.DomUtil.create('div', 'leaflet-legend-item',
       legendContainer);
     if (legend.inactive) {
-      L.DomUtil.addClass(legendItemDiv,
-        'leaflet-legend-item-inactive');
+      L.DomUtil.addClass(legendItemDiv, 'leaflet-legend-item-inactive');
     }
     const symbolContainer = L.DomUtil.create('i', null, legendItemDiv);
 
@@ -160,14 +155,12 @@ L.Control.Legend = L.Control.extend({
     const legendLabel = L.DomUtil.create('span', null, legendItemDiv);
     legendLabel.innerText = legend.label;
     if (legend.layers) {
-      L.DomUtil.addClass(legendItemDiv,
-        'leaflet-legend-item-clickable');
+      L.DomUtil.addClass(legendItemDiv, 'leaflet-legend-item-clickable');
       L.DomEvent.on(
         legendItemDiv,
         'click',
         () => {
-          this.toggleLegend.call(this, legendItemDiv,
-            legend.layers);
+          this.toggleLegend.call(this, legendItemDiv, legend.layers);
         },
         this,
       );
@@ -196,21 +189,16 @@ L.Control.Legend = L.Control.extend({
 
   toggleLegend(legendDiv, layers) {
     if (L.DomUtil.hasClass(legendDiv, 'leaflet-legend-item-inactive')) {
-      L.DomUtil.removeClass(legendDiv,
-        'leaflet-legend-item-inactive');
-      if (L.Util.isArray(layers)) {
-        for (let i = 0; i < layers.length; i += 1) {
-          this.map.addLayer(layers[i]);
-        }
+      L.DomUtil.removeClass(legendDiv, 'leaflet-legend-item-inactive');
+      if (Array.isArray(layers)) {
+        layers.forEach((layer) => this.map.addLayer(layer));
       } else {
         this.map.addLayer(layers);
       }
     } else {
       L.DomUtil.addClass(legendDiv, 'leaflet-legend-item-inactive');
-      if (L.Util.isArray(layers)) {
-        for (let i = 0; i < layers.length; i += 1) {
-          this.map.removeLayer(layers[i]);
-        }
+      if (Array.isArray(layers)) {
+        layers.forEach((layer) => this.map.removeLayer(layer));
       } else {
         this.map.removeLayer(layers);
       }
