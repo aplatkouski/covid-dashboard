@@ -4,7 +4,6 @@ const settings = {
   chartOptions: {
     type: 'line',
     data: {
-      // label: 'a',
       datasets: [
         {
           label: 'aa',
@@ -46,8 +45,6 @@ const settings = {
             type: 'time',
             time: {
               unit: 'month',
-              // format: '',
-              // tooltipFormat: 'll',
             },
             gridLines: {
               color: 'black',
@@ -61,7 +58,6 @@ const settings = {
             },
             ticks: {
               beginAtZero: true,
-              // stepSize: 50000,
             },
           },
         ],
@@ -79,7 +75,6 @@ const settings = {
             },
             ticks: {
               beginAtZero: true,
-              // stepSize: 50000,
             },
           },
         ],
@@ -114,7 +109,8 @@ const settings = {
   },
   API: {
     globalStatistics: 'https://corona-api.com/timeline',
-    countryStatistics: '',
+    countrySlug: 'https://api.covid19api.com/countries',
+    population: 'https://restcountries.eu/rest/v2/all?fields=alpha2Code;population',
   },
   worldPopulation: 7856691739, // TODO get population by API
   precision: 100000,
@@ -206,9 +202,6 @@ export default class ChartBlock {
     this.$chart = this.$chartCanvas.getContext('2d');
     this.myChart = new Chart(this.$chart, this.settings.chartOptions);
     this.render();
-    // setTimeout(() => {
-    //   this.updateDataSet();
-    // }, 5000);
   }
 
   set setcurrentCaseType(caseType) {
@@ -242,17 +235,8 @@ export default class ChartBlock {
     this.render();
   }
 
-  fillTestPoints() {
-    for (let i = 1; i < 10; i += 1) {
-      // this.settings.chartOptions.data.datasets[0].data
-      //   .push(source[this.currentDataType.key][this.currentCaseType.key]
-      //     * );
-      this.settings.chartOptions.data.datasets[0].data.push({ x: new Date(`'2020-0${i}-05'`), y: (i === 1 ? 1 : Math.random()) });
-    }
-  }
-
   async getPopulation(isGlobal) {
-    const responsePopulation = await fetch('https://restcountries.eu/rest/v2/all?fields=alpha2Code;population');
+    const responsePopulation = await fetch(this.settings.API.population);
     const datapopulation = await responsePopulation.json();
     let population = 0;
 
@@ -267,7 +251,6 @@ export default class ChartBlock {
     while (i < 10000) {
       i += 1;
     }
-    console.log(population);
     return population;
   }
 
@@ -275,7 +258,6 @@ export default class ChartBlock {
     const response = await fetch(this.settings.API.globalStatistics);
     if (response.ok) {
       const gloPop = await this.getPopulation(true);
-      console.log('check');
       const data = await response.json();
       this.globalCases = data;
       this.globalCases.data.forEach((oneDataDay) => {
@@ -291,7 +273,7 @@ export default class ChartBlock {
   }
 
   async calcChartByCountry(isLastDayMode, isPer100kMode) {
-    const responseCountries = await fetch('https://api.covid19api.com/countries');
+    const responseCountries = await fetch(this.settings.API.countrySlug);
     const dataCountries = await responseCountries.json();
     const slug = dataCountries.filter((country) => country.ISO2 === this.dataSource)[0].Slug;
 
@@ -301,7 +283,6 @@ export default class ChartBlock {
       this.casesByCountry = data;
       const popuation = await this.getPopulation(false);
       this.casesByCountry.forEach(async (oneDataDay, index, array) => {
-        console.log(index);
         let valueForChart = (isLastDayMode
           ? (oneDataDay.Cases - (index > 0 ? array[index - 1].Cases : 0))
           : oneDataDay.Cases);
@@ -320,9 +301,6 @@ export default class ChartBlock {
   }
 
   async updateDataSet() {
-    // this.setcurrentCaseType = 'deaths';
-    // this.setcurrentDataType = 'last day cases per 100k';
-    // this.dataSource = null;
     let result;
     this.settings.chartOptions.data.datasets[0].label = `${this.currentCaseType.type}: ${this.currentDataType.type}`;
     this.settings.chartOptions.data.datasets[0].data = [];
