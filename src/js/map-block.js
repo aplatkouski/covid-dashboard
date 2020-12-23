@@ -92,10 +92,10 @@ export default class MapBlock {
       $flagImage.alt = `${country.alpha2Code || 'country'} flag`;
       $flagImage.classList.add(this.settings.flagIconCSSClass);
 
-      const $h2 = document.createElement('h2');
-      $h2.appendChild($flagImage);
-      $h2.appendChild(document.createTextNode(country.name));
-      $h2.dataset.alpha2Code = country.alpha2Code;
+      const $h3 = document.createElement('h3');
+      $h3.appendChild($flagImage);
+      $h3.appendChild(document.createTextNode(country.name));
+      $h3.dataset.alpha2Code = country.alpha2Code;
 
       const $p = document.createElement('p');
       $p.appendChild(document.createTextNode(
@@ -103,7 +103,7 @@ export default class MapBlock {
       ));
 
       const $container = document.createElement('div');
-      $container.appendChild($h2);
+      $container.appendChild($h3);
       $container.appendChild($p);
       return $container;
     };
