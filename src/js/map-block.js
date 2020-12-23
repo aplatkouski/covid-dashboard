@@ -43,7 +43,7 @@ const settings = {
     opacity: 0.2,
     weight: 2,
   },
-  calculationRadius: {
+  radius: {
     min: 10000,
     max: 400000,
     base: 4,
@@ -70,6 +70,7 @@ export default class MapBlock {
     this.selectedCountry = undefined;
     this.maxValues = {};
     this.chunks = {};
+    this.layerGroups = {};
     this.assignMaxValuesAndColor();
 
     const defaultCountry = this.casesByCountry[this.settings.defaultCountryAlpha2Code];
@@ -299,16 +300,24 @@ export default class MapBlock {
     }).addTo(this.map);
   }
 
+  getRadius(value, { dataType, caseType }) {
+    return value
+      ? (this.settings.radius.base
+        ** (value / this.maxValues[dataType][caseType])
+        * (this.settings.radius.max / this.settings.radius.base))
+      : this.settings.radius.min;
+  }
+
   addCircle(country) {
     const { dataType, caseType } = this.options;
     const value = country[dataType][caseType];
     const radius = value
-      ? (this.settings.calculationRadius.base ** (country[dataType][caseType]
+      ? (this.settings.radius.base ** (country[dataType][caseType]
         / this.maxValues[dataType][caseType]) * (
-        this.settings.calculationRadius.max
-        / this.settings.calculationRadius.base
+        this.settings.radius.max
+        / this.settings.radius.base
       ))
-      : this.settings.calculationRadius.min;
+      : this.settings.radius.min;
 
     const currentCountry = country;
     const color = country[Symbol.for('color')][dataType][caseType];
