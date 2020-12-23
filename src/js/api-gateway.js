@@ -39,7 +39,7 @@ export default class ApiGateway {
   get isOutdated() {
     const ONE_HOUR_IN_MILLISECONDS = 36e5;
     return (!this[Symbol.for('date')]
-      || (Date.now() - this[Symbol.for('date')]?.getTime()
+      || (Date.now() - this[Symbol.for('date')]
         > ONE_HOUR_IN_MILLISECONDS));
   }
 
