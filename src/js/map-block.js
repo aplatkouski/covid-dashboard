@@ -310,14 +310,10 @@ export default class MapBlock {
 
   addCircle(country) {
     const { dataType, caseType } = this.options;
-    const value = country[dataType][caseType];
-    const radius = value
-      ? (this.settings.radius.base ** (country[dataType][caseType]
-        / this.maxValues[dataType][caseType]) * (
-        this.settings.radius.max
-        / this.settings.radius.base
-      ))
-      : this.settings.radius.min;
+    const radius = this.getRadius(
+      country[dataType][caseType],
+      { dataType, caseType },
+    );
 
     const currentCountry = country;
     const color = country[Symbol.for('color')][dataType][caseType];
