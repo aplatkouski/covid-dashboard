@@ -246,6 +246,10 @@ footer {
   border: 1px solid black;
 }
 
+.list-item-big {
+  height: 25%;
+}
+
 .card-info {
   width: 20%;
   text-align: center;
