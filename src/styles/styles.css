@@ -78,110 +78,92 @@ p {
 }
 
 .table-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   height: 60%;
-	background-color: var(--color-dark-3xl);
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	text-align: center;
-	color: var(--color-dark-s);
-	font-size: 2rem;
-	text-transform: uppercase;
+  font-size: 2rem;
+  color: var(--color-dark-s);
+  text-align: center;
+  text-transform: uppercase;
+  background-color: var(--color-dark-3xl);
 
 }
-.table-block--controlsWrapper {
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	flex-wrap: wrap;
-	margin-bottom: 5%;
-}
-.table-block--controlsWrapper > label {
-	display: flex;
-	flex-direction: column;
-}
-.table-block--controlsWrapper select {
-	background-color: var(--color-dark-3xl);
-	outline: none;
-	color: var(--color-dark-s);
-	font-size: 2rem;
-	text-align-last: center;
+
+.table-block-controls-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5%;
 }
 
-.table-block--controlsWrapper {
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	flex-wrap: wrap;
-	margin-bottom: 5%;
-}
-.table-block--controlsWrapper > label {
-	display: flex;
-	flex-direction: column;
-}
-.table-block--controlsWrapper select {
-	background-color: var(--color-dark-3xl);
-	outline: none;
-	color: var(--color-dark-s);
-	font-size: 2rem;
-	text-align-last: center;
+.table-block-controls-wrapper > label {
+  display: flex;
+  flex-direction: column;
 }
 
-.table-block  li {
-	list-style-type: none;
-
-	padding: 0.5rem ;
-	background-color: #545454;
-	border-bottom: var(--color-dark-3xl) 1rem solid;
-
-.table-block  li {
-	list-style-type: none;
-
-	padding: 0.5rem ;
-	background-color: #545454;
-	border-bottom: var(--color-dark-3xl) 1rem solid;
-
-
+.table-block-controls-wrapper select {
+  font-size: 2rem;
+  color: var(--color-dark-s);
+  text-align-last: center;
+  background-color: var(--color-dark-3xl);
+  outline: none;
 }
+
+.table-block li {
+  padding: .5rem;
+  list-style-type: none;
+  background-color: #545454;
+  border-bottom: var(--color-dark-3xl) 1rem solid;
+}
+
 .chart-block {
-	height: 40%;
+  height: 40%;
   background-color: var(--color-dark-3xl);
 }
 
-.chart-block--controlsWrapper {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-evenly;
-	align-items: normal;
-	flex-wrap: wrap;
+.chart-block-controls-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: normal;
+  justify-content: space-evenly;
 }
-.chart-block--controlsWrapper > label{
-	display: flex;
-	flex-direction: column;
-	text-align: center;
-	color: var(--color-dark-s);
-	font-size: 1rem;
-	text-transform: uppercase;
+
+.chart-block-controls-wrapper > label {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  color: var(--color-dark-s);
+  text-align: center;
+  text-transform: uppercase;
 }
-.chart-block--controlsWrapper > label, .chart-block--controlsWrapper > button {
-	text-align: center;
-	color: var(--color-dark-s);
-	font-size: 1rem;
-	text-transform: uppercase;
+
+.chart-block-controls-wrapper > label,
+.chart-block-controls-wrapper > button {
+  font-size: 1rem;
+  color: var(--color-dark-s);
+  text-align: center;
+  text-transform: uppercase;
 }
-.chart-block--controlsWrapper select, .chart-block--controlsWrapper > button {
-	background-color: var(--color-dark-3xl);
-	outline: none;
-	text-align-last: center;
-	color: var(--color-dark-s);
-	font-size: 1rem;
+
+.chart-block-controls-wrapper select,
+.chart-block-controls-wrapper > button {
+  font-size: 1rem;
+  color: var(--color-dark-s);
+  text-align-last: center;
+  background-color: var(--color-dark-3xl);
+  outline: none;
 
 }
-button:hover, select:hover {
-	cursor: pointer;
+
+button:hover,
+select:hover {
+  cursor: pointer;
 }
+
 .global-cases-block {
   height: 12%;
   background-color: rgba(139, 139, 0, .5);
@@ -276,54 +258,54 @@ footer {
 }
 
 .control-wrapper-list {
-    height: 5%;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    background-color: grey;
-    border-bottom: 2px solid white;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 5%;
+  background-color: #808080;
+  border-bottom: 2px solid #fff;
 }
 
 .search-bar {
-  height: 10%;
-  border-bottom: 2px solid white;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background-color: black;
+  justify-content: center;
+  height: 10%;
+  background-color: #000;
+  border-bottom: 2px solid #fff;
 }
 
 .search-input {
-  height: 30px;
   width: 80%;
+  height: 30px;
 }
 
 .list {
-  height: 85%;
-  background-color: grey;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  height: 85%;
+  background-color: #808080;
 }
 
 .list-items {
+  align-items: center;
   width: 95%;
   height: 95%;
-  list-style: none;
-  align-items: center;
-  overflow-y: auto;
   min-height: 0;
+  overflow-y: auto;
+  list-style: none;
 }
 
 .list-item {
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  margin-bottom: 2px;
+  justify-content: space-around;
   width: 100%;
   height: 12.5%;
-  background-color: white;
-  border: 1px solid black;
+  margin-bottom: 2px;
+  background-color: #fff;
+  border: 1px solid #000;
 }
 
 .list-item-big {
@@ -337,8 +319,8 @@ footer {
 
 .card-country-name {
   width: 40%;
-  text-align: center;
   overflow: hidden;
+  text-align: center;
 }
 
 .card-flag {

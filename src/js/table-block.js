@@ -40,7 +40,7 @@ const settings = {
   },
   CSSClass: {
     tableWrapper: '',
-    controlsWrapper: 'table-block--controlsWrapper',
+    controlsWrapper: 'table-block-controls-wrapper',
   },
 };
 export default class TableBlock {

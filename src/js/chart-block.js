@@ -112,7 +112,7 @@ const settings = {
   },
   CSSClass: {
     chartWrapper: 'chart-block--chartWrapper',
-    controlsWrapper: 'chart-block--controlsWrapper',
+    controlsWrapper: 'chart-block-controls-wrapper',
   },
   API: {
     globalStatistics: 'https://corona-api.com/timeline',
