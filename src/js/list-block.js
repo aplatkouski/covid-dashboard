@@ -6,7 +6,7 @@ const settings = {
       type: 'confirmed',
       key: 'confirmed',
     },
-    deaths: { type: 'deaths', key: 'deaths', },
+    deaths: { type: 'deaths', key: 'deaths' },
     recovered: {
       type: 'recovered',
       key: 'recovered',
