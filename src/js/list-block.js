@@ -21,13 +21,14 @@ const settings = {
       key: 'lastDayComparative',
     },
   },
+  cardDataCSSClass: 'card-data',
 };
 
-function createItem(type, className, text) {
-  const element = document.createElement(type);
-  element.className = className;
-  element.innerText = (text !== undefined) ? text : '';
-  return element;
+function createItem(tagName, className, innerText) {
+  const $element = document.createElement(tagName);
+  $element.className = className;
+  $element.innerText = innerText || '';
+  return $element;
 }
 
 function createArr(a) {
@@ -56,69 +57,67 @@ function createArr(a) {
   return res;
 }
 
-function createListItem(country, number, flag) {
-  const listItem = createItem('div', 'list-item');
-  const cardInfo = createItem('div', 'card-info', `${number}`);
-  const cardCountry = createItem('div', 'card-country-name', `${country}`);
-  const cardFlag = createItem('div', 'card-flag');
-  cardFlag.style.backgroundImage = `url(${flag})`;
-  listItem.append(cardInfo, cardCountry, cardFlag);
-  return listItem;
+function createListItem(countryName, statisticalData, flag) {
+  const $listItem = createItem('div', 'list-item');
+  const $cardFlag = createItem('div', 'card-flag');
+  $cardFlag.style.backgroundImage = `url(${flag})`;
+  $listItem.append(
+    createItem('div', 'card-data', `${statisticalData}`),
+    createItem('div', 'card-country-name', `${countryName}`),
+    $cardFlag,
+  );
+  return $listItem;
 }
 
 function search() {
-  const input = document.querySelector('.search-input');
-  const filter = input.value.toUpperCase();
-  const li = document.querySelectorAll('.list-item');
-  const names = document.querySelectorAll('.card-country-name');
+  const filter = document.querySelector('.search-input').value.toUpperCase();
+  const $li = document.querySelectorAll('.list-item');
+  const $countryNames = document.querySelectorAll('.card-country-name');
 
-  for (let i = 0; i < names.length; i += 1) {
-    const cardText = names[i].innerText.toUpperCase();
-    if (cardText.indexOf(filter) > -1) {
-      li[i].style.display = '';
-    } else {
-      li[i].style.display = 'none';
-    }
-  }
+  $countryNames.forEach((name, index) => {
+    $li[index].style.display = name.innerText.toUpperCase().indexOf(filter) === -1
+      ? 'none'
+      : '';
+  });
 }
 
 function createSearchBar() {
-  const searchBar = createItem('div', 'search-bar');
-  const searchInput = createItem('input', 'search-input');
-  searchInput.addEventListener('keyup', search);
-  searchInput.type = 'text';
-  searchInput.placeholder = 'Search...';
-  searchBar.append(searchInput);
-  return searchBar;
+  const $searchBar = createItem('div', 'search-bar');
+  const $searchInput = createItem('input', 'search-input');
+  $searchInput.addEventListener('keyup', search);
+  $searchInput.type = 'text';
+  $searchInput.placeholder = 'Search...';
+  $searchBar.append($searchInput);
+  return $searchBar;
 }
 
-function createListItems(arr, param) {
-  const listItems = createItem('ul', 'list-items');
-  for (let i = 0; i < arr.length; i += 1) {
-    const listItem = createListItem(arr[i].name, arr[i][param], arr[i].flagUrl);
-    if (arr[i].name.length > 30) {
-      listItem.classList.add('list-item-big');
-    }
-    listItems.append(listItem);
-  }
-  return listItems;
+function createListItems(countries, dataType) {
+  const $listItems = createItem('ul', 'list-items');
+  $listItems.append(...countries.map((country) => {
+    const $listItem = createListItem(
+      country.name, country[dataType], country.flagUrl,
+    );
+    if (country.name.length > 30) $listItem.classList.add('list-item-big');
+    return $listItem;
+  }));
+  return $listItems;
 }
 
-function sortArr(arr, param) {
-  return arr.sort((a, b) => (a[param] < b[param] ? 1 : -1));
+function sortArr(countries, dataType) {
+  return countries.sort((a, b) => (a[dataType] < b[dataType] ? 1 : -1));
 }
 
 function changeList(param) {
-  const listToRemove = document.querySelector('.list-items');
-  if (listToRemove) {
-    listToRemove.remove();
-  }
-  const obj = JSON.parse(localStorage.getItem('countries'));
-  const arr = createArr(obj);
-  const currentArr = sortArr(arr, param);
-  const listItems = createListItems(currentArr, param);
-  const list = document.querySelector('.list');
-  list.append(listItems);
+  const $listToRemove = document.querySelector('.list-items');
+  if ($listToRemove) $listToRemove.remove();
+
+  const currentArr = sortArr(
+    createArr(JSON.parse(localStorage.getItem('countries'))),
+    param,
+  );
+  document.querySelector('.list').append(
+    createListItems(currentArr, param),
+  );
 }
 
 export default class ListBlock {
@@ -147,10 +146,10 @@ export default class ListBlock {
   }
 
   createListWrapper() {
-    const wrapper = createItem('div', 'list-wrapper');
-    this.controlsWrapper = document.createElement('div');
-    this.controlsWrapper.classList.add('control-wrapper');
-    this.controlsWrapper.classList.add('control-wrapper-list');
+    const $wrapper = createItem('div', 'list-wrapper');
+    this.$controlsWrapper = document.createElement('div');
+    this.$controlsWrapper.classList.add('control-wrapper');
+    this.$controlsWrapper.classList.add('control-wrapper-list');
     this.$caseTypeSelector = createSelectElement(
       this.settings.caseTypes,
       this.currentCaseType.type,
@@ -160,20 +159,25 @@ export default class ListBlock {
       this.currentDataType.type,
     );
 
-    this.updateButton = document.createElement('button');
-    this.updateButton.innerText = 'Update List';
-    this.updateButton.addEventListener(
+    this.$updateButton = document.createElement('button');
+    this.$updateButton.innerText = 'Update List';
+    this.$updateButton.addEventListener(
       'click', (e) => this.eventHandler(e),
     );
-    this.controlsWrapper.append(this.$caseTypeSelector, this.$dataTypeSelector, this.updateButton);
-    const searchBar = createSearchBar();
-    const list = createItem('div', 'list');
-    const currentArr = sortArr(this.arr, 'confirmed-total');
-    const listItems = createListItems(currentArr, 'confirmed-total');
-    list.append(listItems);
-    wrapper.append(this.controlsWrapper, searchBar, list);
-    document.body.append(wrapper);
-    return wrapper;
+    this.$controlsWrapper.append(
+      this.$caseTypeSelector, this.$dataTypeSelector, this.$updateButton,
+    );
+    const $searchBar = createSearchBar();
+    const $list = createItem('div', 'list');
+    $list.append(
+      createListItems(
+        sortArr(this.arr, 'confirmed-total'),
+        'confirmed-total',
+      ),
+    );
+    $wrapper.append(this.$controlsWrapper, $searchBar, $list);
+    document.body.append($wrapper);
+    return $wrapper;
   }
 
   eventHandler() {
